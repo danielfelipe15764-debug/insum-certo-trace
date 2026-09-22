@@ -10,33 +10,154 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as DivergenciasRouteImport } from './routes/divergencias'
+import { Route as FazendasRouteImport } from './routes/fazendas'
+import { Route as InsumosRouteImport } from './routes/insumos'
+import { Route as LerQrRouteImport } from './routes/ler-qr'
+import { Route as OrdensRouteImport } from './routes/ordens'
+import { Route as RastreabilidadeRouteImport } from './routes/rastreabilidade'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as UsuariosRouteImport } from './routes/usuarios'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DivergenciasRoute = DivergenciasRouteImport.update({
+  id: '/divergencias',
+  path: '/divergencias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FazendasRoute = FazendasRouteImport.update({
+  id: '/fazendas',
+  path: '/fazendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InsumosRoute = InsumosRouteImport.update({
+  id: '/insumos',
+  path: '/insumos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LerQrRoute = LerQrRouteImport.update({
+  id: '/ler-qr',
+  path: '/ler-qr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdensRoute = OrdensRouteImport.update({
+  id: '/ordens',
+  path: '/ordens',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RastreabilidadeRoute = RastreabilidadeRouteImport.update({
+  id: '/rastreabilidade',
+  path: '/rastreabilidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsuariosRoute = UsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/divergencias': typeof DivergenciasRoute
+  '/fazendas': typeof FazendasRoute
+  '/insumos': typeof InsumosRoute
+  '/ler-qr': typeof LerQrRoute
+  '/ordens': typeof OrdensRoute
+  '/rastreabilidade': typeof RastreabilidadeRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/usuarios': typeof UsuariosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/divergencias': typeof DivergenciasRoute
+  '/fazendas': typeof FazendasRoute
+  '/insumos': typeof InsumosRoute
+  '/ler-qr': typeof LerQrRoute
+  '/ordens': typeof OrdensRoute
+  '/rastreabilidade': typeof RastreabilidadeRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/usuarios': typeof UsuariosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/divergencias': typeof DivergenciasRoute
+  '/fazendas': typeof FazendasRoute
+  '/insumos': typeof InsumosRoute
+  '/ler-qr': typeof LerQrRoute
+  '/ordens': typeof OrdensRoute
+  '/rastreabilidade': typeof RastreabilidadeRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/usuarios': typeof UsuariosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/configuracoes'
+    | '/divergencias'
+    | '/fazendas'
+    | '/insumos'
+    | '/ler-qr'
+    | '/ordens'
+    | '/rastreabilidade'
+    | '/relatorios'
+    | '/usuarios'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/configuracoes'
+    | '/divergencias'
+    | '/fazendas'
+    | '/insumos'
+    | '/ler-qr'
+    | '/ordens'
+    | '/rastreabilidade'
+    | '/relatorios'
+    | '/usuarios'
+  id:
+    | '__root__'
+    | '/'
+    | '/configuracoes'
+    | '/divergencias'
+    | '/fazendas'
+    | '/insumos'
+    | '/ler-qr'
+    | '/ordens'
+    | '/rastreabilidade'
+    | '/relatorios'
+    | '/usuarios'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
+  DivergenciasRoute: typeof DivergenciasRoute
+  FazendasRoute: typeof FazendasRoute
+  InsumosRoute: typeof InsumosRoute
+  LerQrRoute: typeof LerQrRoute
+  OrdensRoute: typeof OrdensRoute
+  RastreabilidadeRoute: typeof RastreabilidadeRoute
+  RelatoriosRoute: typeof RelatoriosRoute
+  UsuariosRoute: typeof UsuariosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +169,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/divergencias': {
+      id: '/divergencias'
+      path: '/divergencias'
+      fullPath: '/divergencias'
+      preLoaderRoute: typeof DivergenciasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fazendas': {
+      id: '/fazendas'
+      path: '/fazendas'
+      fullPath: '/fazendas'
+      preLoaderRoute: typeof FazendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/insumos': {
+      id: '/insumos'
+      path: '/insumos'
+      fullPath: '/insumos'
+      preLoaderRoute: typeof InsumosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ler-qr': {
+      id: '/ler-qr'
+      path: '/ler-qr'
+      fullPath: '/ler-qr'
+      preLoaderRoute: typeof LerQrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ordens': {
+      id: '/ordens'
+      path: '/ordens'
+      fullPath: '/ordens'
+      preLoaderRoute: typeof OrdensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rastreabilidade': {
+      id: '/rastreabilidade'
+      path: '/rastreabilidade'
+      fullPath: '/rastreabilidade'
+      preLoaderRoute: typeof RastreabilidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/usuarios': {
+      id: '/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof UsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
+  DivergenciasRoute: DivergenciasRoute,
+  FazendasRoute: FazendasRoute,
+  InsumosRoute: InsumosRoute,
+  LerQrRoute: LerQrRoute,
+  OrdensRoute: OrdensRoute,
+  RastreabilidadeRoute: RastreabilidadeRoute,
+  RelatoriosRoute: RelatoriosRoute,
+  UsuariosRoute: UsuariosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
