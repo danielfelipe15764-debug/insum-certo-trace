@@ -19,6 +19,8 @@ export const Route = createFileRoute("/ler-qr")({
         property: "og:description",
         content: "Registro de saída, chegada e aplicação em poucos toques, direto do celular.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: LerQr,

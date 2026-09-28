@@ -40,7 +40,7 @@ export function RouteTrackingMap({ insumo, destino }: RouteTrackingMapProps) {
         <div className="absolute -left-12 top-[180px] h-20 w-[120%] -rotate-12 border-y-[12px] border-card bg-muted" />
         <div className="absolute left-[8%] top-[22%] h-[52%] w-[77%] rounded-[50%] border-[5px] border-dashed border-info/75 rotate-3" />
 
-        <div className="absolute left-[7%] top-[62%] flex -translate-x-1/2 flex-col items-center">
+        <div className="absolute left-[14%] top-[62%] flex -translate-x-1/2 flex-col items-center sm:left-[7%]">
           <span className="grid h-11 w-11 place-items-center rounded-full border-4 border-card bg-foreground text-card shadow-card">
             <MapPin className="h-5 w-5" />
           </span>

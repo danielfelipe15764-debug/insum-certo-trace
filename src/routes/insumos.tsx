@@ -15,6 +15,8 @@ export const Route = createFileRoute("/insumos")({
       },
       { property: "og:title", content: "Insumos e QR Codes · Insumo Certo" },
       { property: "og:description", content: "Cada produto com QR Code único, lote e status de rastreamento." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Insumos,

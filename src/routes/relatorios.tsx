@@ -15,6 +15,8 @@ export const Route = createFileRoute("/relatorios")({
       },
       { property: "og:title", content: "Relatórios · Insumo Certo" },
       { property: "og:description", content: "Filtre por período, fazenda, produto e OS e exporte em Excel ou PDF." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Relatorios,

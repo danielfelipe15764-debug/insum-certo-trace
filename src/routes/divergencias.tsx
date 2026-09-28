@@ -15,6 +15,8 @@ export const Route = createFileRoute("/divergencias")({
       },
       { property: "og:title", content: "Central de Divergências · Insumo Certo" },
       { property: "og:description", content: "Alertas automáticos de inconsistências no fluxo dos insumos." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Divergencias,

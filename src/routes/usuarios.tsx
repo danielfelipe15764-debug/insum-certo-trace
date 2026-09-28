@@ -13,6 +13,8 @@ export const Route = createFileRoute("/usuarios")({
       },
       { property: "og:title", content: "Usuários e perfis · Insumo Certo" },
       { property: "og:description", content: "Permissões por perfil em cada etapa da rastreabilidade." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Usuarios,

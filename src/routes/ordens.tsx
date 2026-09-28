@@ -13,6 +13,8 @@ export const Route = createFileRoute("/ordens")({
       },
       { property: "og:title", content: "Ordens de Serviço · Insumo Certo" },
       { property: "og:description", content: "Status, insumos vinculados e progresso de cada ordem de serviço." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Ordens,

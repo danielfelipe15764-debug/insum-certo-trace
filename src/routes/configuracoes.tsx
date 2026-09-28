@@ -14,6 +14,8 @@ export const Route = createFileRoute("/configuracoes")({
       },
       { property: "og:title", content: "Configurações · Insumo Certo" },
       { property: "og:description", content: "Ajuste regras de validação, alertas e padrão de QR Code." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Configuracoes,

@@ -30,6 +30,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Rastreabilidade total do insumo agrícola do almoxarifado até a aplicação no talhão.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Dashboard,

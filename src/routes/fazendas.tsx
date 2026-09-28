@@ -12,6 +12,8 @@ export const Route = createFileRoute("/fazendas")({
       },
       { property: "og:title", content: "Fazendas e talhões · Insumo Certo" },
       { property: "og:description", content: "Área por talhão, ordens vinculadas e insumos aplicados." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Fazendas,
