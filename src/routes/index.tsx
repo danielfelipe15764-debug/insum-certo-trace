@@ -19,13 +19,13 @@ import { StatusBadge } from "@/components/insum/StatusBadge";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Painel de controle · INSUM CERTO" },
+      { title: "Painel de controle · Insumo Certo" },
       {
         name: "description",
         content:
           "Painel com indicadores de insumos agrícolas em transporte, entregues, aplicados, pendentes e divergências por fazenda e produto.",
       },
-      { property: "og:title", content: "Painel de controle · INSUM CERTO" },
+      { property: "og:title", content: "Painel de controle · Insumo Certo" },
       {
         property: "og:description",
         content: "Rastreabilidade total do insumo agrícola do almoxarifado até a aplicação no talhão.",

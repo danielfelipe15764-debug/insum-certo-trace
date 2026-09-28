@@ -7,12 +7,12 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({
     meta: [
-      { title: "Configurações · INSUM CERTO" },
+      { title: "Configurações · Insumo Certo" },
       {
         name: "description",
         content: "Regras de validação de destino, alertas de divergência, padrão de QR Code e restauração dos dados de demonstração.",
       },
-      { property: "og:title", content: "Configurações · INSUM CERTO" },
+      { property: "og:title", content: "Configurações · Insumo Certo" },
       { property: "og:description", content: "Ajuste regras de validação, alertas e padrão de QR Code." },
     ],
   }),

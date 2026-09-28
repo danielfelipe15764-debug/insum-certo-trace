@@ -8,12 +8,12 @@ import { exportarCsv, exportarPdf } from "@/lib/insum/export";
 export const Route = createFileRoute("/relatorios")({
   head: () => ({
     meta: [
-      { title: "Relatórios · INSUM CERTO" },
+      { title: "Relatórios · Insumo Certo" },
       {
         name: "description",
         content: "Relatórios de insumos filtráveis por período, fazenda, produto e ordem de serviço, com exportação em Excel e PDF.",
       },
-      { property: "og:title", content: "Relatórios · INSUM CERTO" },
+      { property: "og:title", content: "Relatórios · Insumo Certo" },
       { property: "og:description", content: "Filtre por período, fazenda, produto e OS e exporte em Excel ou PDF." },
     ],
   }),

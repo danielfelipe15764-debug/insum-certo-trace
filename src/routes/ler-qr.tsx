@@ -8,13 +8,13 @@ import { useApp, type LeituraResultado } from "@/lib/insum/store";
 export const Route = createFileRoute("/ler-qr")({
   head: () => ({
     meta: [
-      { title: "Ler QR Code · INSUM CERTO" },
+      { title: "Ler QR Code · Insumo Certo" },
       {
         name: "description",
         content:
           "Leia o QR Code do insumo com a câmera do celular para registrar saída do almoxarifado, chegada na fazenda e aplicação no talhão.",
       },
-      { property: "og:title", content: "Ler QR Code · INSUM CERTO" },
+      { property: "og:title", content: "Ler QR Code · Insumo Certo" },
       {
         property: "og:description",
         content: "Registro de saída, chegada e aplicação em poucos toques, direto do celular.",

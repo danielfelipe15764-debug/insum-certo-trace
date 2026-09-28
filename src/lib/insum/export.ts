@@ -26,7 +26,7 @@ export function exportarPdf(titulo: string, subtitulo: string, colunas: string[]
     tr:nth-child(even) td{background:#f5f9f6}
     .brand{font-weight:800;letter-spacing:-.3px}
   </style></head><body>
-  <div class="brand" style="color:#1d5c3a;font-size:14px">INSUM CERTO</div>
+  <div class="brand" style="color:#1d5c3a;font-size:14px">Insumo Certo</div>
   <h1>${esc(titulo)}</h1><p class="sub">${esc(subtitulo)}</p>
   <table><thead><tr>${colunas.map((c) => `<th>${esc(c)}</th>`).join("")}</tr></thead>
   <tbody>${linhas.map((l) => `<tr>${l.map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>

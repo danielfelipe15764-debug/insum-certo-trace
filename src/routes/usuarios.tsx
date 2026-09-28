@@ -6,12 +6,12 @@ import type { Perfil } from "@/lib/insum/types";
 export const Route = createFileRoute("/usuarios")({
   head: () => ({
     meta: [
-      { title: "Usuários e perfis · INSUM CERTO" },
+      { title: "Usuários e perfis · Insumo Certo" },
       {
         name: "description",
         content: "Controle de usuários com perfis de administrador, almoxarifado, motorista, operador de campo e gestor.",
       },
-      { property: "og:title", content: "Usuários e perfis · INSUM CERTO" },
+      { property: "og:title", content: "Usuários e perfis · Insumo Certo" },
       { property: "og:description", content: "Permissões por perfil em cada etapa da rastreabilidade." },
     ],
   }),

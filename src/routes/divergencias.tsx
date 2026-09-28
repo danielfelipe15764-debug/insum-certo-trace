@@ -7,13 +7,13 @@ import { divergenciaLabel, fmtDataHora, useApp } from "@/lib/insum/store";
 export const Route = createFileRoute("/divergencias")({
   head: () => ({
     meta: [
-      { title: "Central de Divergências · INSUM CERTO" },
+      { title: "Central de Divergências · Insumo Certo" },
       {
         name: "description",
         content:
           "Central de divergências: produto aplicado em fazenda diferente, insumo não aplicado, quantidade divergente e QR Code duplicado.",
       },
-      { property: "og:title", content: "Central de Divergências · INSUM CERTO" },
+      { property: "og:title", content: "Central de Divergências · Insumo Certo" },
       { property: "og:description", content: "Alertas automáticos de inconsistências no fluxo dos insumos." },
     ],
   }),

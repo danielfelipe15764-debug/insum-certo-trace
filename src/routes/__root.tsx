@@ -78,13 +78,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "INSUM CERTO · Rastreabilidade de insumos agrícolas" },
+      { title: "Insumo Certo · Rastreabilidade de insumos agrícolas" },
       {
         name: "description",
         content:
           "Controle e rastreabilidade de insumos agrícolas por QR Code, do almoxarifado até a aplicação no talhão.",
       },
-      { property: "og:title", content: "INSUM CERTO · Rastreabilidade de insumos agrícolas" },
+      { property: "og:title", content: "Insumo Certo · Rastreabilidade de insumos agrícolas" },
       {
         property: "og:description",
         content: "QR Code único por produto, validação de destino e histórico permanente de cada leitura.",

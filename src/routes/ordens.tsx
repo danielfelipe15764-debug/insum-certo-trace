@@ -6,12 +6,12 @@ import { useApp } from "@/lib/insum/store";
 export const Route = createFileRoute("/ordens")({
   head: () => ({
     meta: [
-      { title: "Ordens de Serviço · INSUM CERTO" },
+      { title: "Ordens de Serviço · Insumo Certo" },
       {
         name: "description",
         content: "Consulte ordens de serviço com status, produtos vinculados, quantidades e progresso de aplicação.",
       },
-      { property: "og:title", content: "Ordens de Serviço · INSUM CERTO" },
+      { property: "og:title", content: "Ordens de Serviço · Insumo Certo" },
       { property: "og:description", content: "Status, insumos vinculados e progresso de cada ordem de serviço." },
     ],
   }),
