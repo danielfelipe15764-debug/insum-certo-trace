@@ -3,7 +3,7 @@ import type { Fazenda, Insumo } from "@/lib/insum/types";
 
 interface RouteTrackingMapProps {
   insumo: Insumo;
-  destino?: Fazenda;
+  destino: Fazenda | undefined;
 }
 
 const routeInfo: Record<string, { distancia: string; duracao: string }> = {
