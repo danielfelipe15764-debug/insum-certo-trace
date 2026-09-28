@@ -5,13 +5,15 @@ import { useApp } from "@/lib/insum/store";
 export const Route = createFileRoute("/fazendas")({
   head: () => ({
     meta: [
-      { title: "Fazendas e talhões · INSUM CERTO" },
+      { title: "Fazendas e talhões · Insumo Certo" },
       {
         name: "description",
         content: "Cadastro de fazendas e talhões com área, ordens de serviço vinculadas e insumos aplicados em cada unidade.",
       },
-      { property: "og:title", content: "Fazendas e talhões · INSUM CERTO" },
+      { property: "og:title", content: "Fazendas e talhões · Insumo Certo" },
       { property: "og:description", content: "Área por talhão, ordens vinculadas e insumos aplicados." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Fazendas,

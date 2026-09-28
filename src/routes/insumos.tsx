@@ -8,13 +8,15 @@ import { exportarCsv } from "@/lib/insum/export";
 export const Route = createFileRoute("/insumos")({
   head: () => ({
     meta: [
-      { title: "Insumos e QR Codes · INSUM CERTO" },
+      { title: "Insumos e QR Codes · Insumo Certo" },
       {
         name: "description",
         content: "Lista de insumos agrícolas com QR Code único, lote, quantidade, ordem de serviço, fazenda e status atual.",
       },
-      { property: "og:title", content: "Insumos e QR Codes · INSUM CERTO" },
+      { property: "og:title", content: "Insumos e QR Codes · Insumo Certo" },
       { property: "og:description", content: "Cada produto com QR Code único, lote e status de rastreamento." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Insumos,

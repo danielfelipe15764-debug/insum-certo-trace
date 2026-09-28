@@ -3,18 +3,21 @@ import { useState } from "react";
 import { QrCode, Search, Package, Truck, MapPin, Sprout } from "lucide-react";
 import { fmtDataHora, useApp } from "@/lib/insum/store";
 import { StatusBadge } from "@/components/insum/StatusBadge";
+import { RouteTrackingMap } from "@/components/insum/RouteTrackingMap";
 
 export const Route = createFileRoute("/rastreabilidade")({
   validateSearch: (s: Record<string, unknown>) => ({ qr: typeof s["qr"] === "string" ? (s["qr"] as string) : "" }),
   head: () => ({
     meta: [
-      { title: "Rastreabilidade · INSUM CERTO" },
+      { title: "Rastreabilidade · Insumo Certo" },
       {
         name: "description",
         content: "Linha do tempo completa por QR Code: cadastro, saída, transporte, chegada e aplicação, com responsável e horário.",
       },
-      { property: "og:title", content: "Rastreabilidade · INSUM CERTO" },
+      { property: "og:title", content: "Rastreabilidade · Insumo Certo" },
       { property: "og:description", content: "Histórico permanente de cada leitura de QR Code do insumo agrícola." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Rastreabilidade,
@@ -107,6 +110,8 @@ function Rastreabilidade() {
                 <Info k="Motorista" v={insumo.motorista ?? "—"} />
               </dl>
             </div>
+
+            <RouteTrackingMap insumo={insumo} destino={fazenda(insumo.fazendaId)} />
 
             <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
               <h3 className="text-sm font-bold text-foreground">Linha do tempo</h3>

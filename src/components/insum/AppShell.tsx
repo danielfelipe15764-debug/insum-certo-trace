@@ -38,7 +38,7 @@ export function Logo({ dark = false }: { dark?: boolean }) {
         <Leaf className="h-5 w-5" />
       </span>
       <span className={cn("truncate text-lg font-extrabold tracking-tight", dark ? "text-sidebar-foreground" : "text-foreground")}>
-        INSUM<span className="text-sidebar-primary"> CERTO</span>
+        Insumo<span className="text-sidebar-primary"> Certo</span>
       </span>
     </div>
   );
