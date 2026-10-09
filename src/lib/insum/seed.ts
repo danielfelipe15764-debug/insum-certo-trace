@@ -41,12 +41,12 @@ const fazendas = [
 ];
 
 const produtos = [
-  { id: "prd-1", nome: "Glifosato 480 SL", categoria: "Herbicida", unidade: "L" },
-  { id: "prd-2", nome: "Mancozebe 800 WP", categoria: "Fungicida", unidade: "kg" },
-  { id: "prd-3", nome: "Cloreto de Potássio", categoria: "Fertilizante", unidade: "t" },
+  { id: "prd-1", codigo: "GLI-480", nome: "Glifosato 480 SL", categoria: "Herbicida", unidade: "L" },
+  { id: "prd-2", codigo: "MAN-800", nome: "Mancozebe 800 WP", categoria: "Fungicida", unidade: "kg" },
+  { id: "prd-3", codigo: "KCL-60", nome: "Cloreto de Potássio", categoria: "Fertilizante", unidade: "t" },
   { id: "prd-4", nome: "MAP Granulado", categoria: "Fertilizante", unidade: "t" },
-  { id: "prd-5", nome: "Lambda-cialotrina 250", categoria: "Inseticida", unidade: "L" },
-  { id: "prd-6", nome: "Semente Soja Intacta", categoria: "Semente", unidade: "sc" },
+  { id: "prd-5", codigo: "LAM-250", nome: "Lambda-cialotrina 250", categoria: "Inseticida", unidade: "L" },
+  { id: "prd-6", codigo: "SOJ-INT", nome: "Semente Soja Intacta", categoria: "Semente", unidade: "sc" },
   { id: "prd-7", nome: "Óleo Mineral Adjuvante", categoria: "Adjuvante", unidade: "L" },
   { id: "prd-8", nome: "Micronutriente Zn/B", categoria: "Fertilizante Foliar", unidade: "L" },
 ];

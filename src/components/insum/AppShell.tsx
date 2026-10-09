@@ -3,6 +3,7 @@ import { useState, type ReactNode } from "react";
 import {
   LayoutDashboard,
   QrCode,
+  Printer,
   ClipboardList,
   Package,
   Route as RouteIcon,
@@ -21,6 +22,7 @@ import { useApp } from "@/lib/insum/store";
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/ler-qr", label: "Ler QR Code", icon: QrCode },
+  { to: "/gerar-qr", label: "Gerar QR Code", icon: Printer },
   { to: "/ordens", label: "Ordens de Serviço", icon: ClipboardList },
   { to: "/insumos", label: "Insumos", icon: Package },
   { to: "/rastreabilidade", label: "Rastreabilidade", icon: RouteIcon },

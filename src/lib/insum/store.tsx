@@ -26,6 +26,7 @@ interface Ctx {
   registrarChegada: (qr: string, p: { fazendaId: string }) => LeituraResultado;
   registrarAplicacao: (qr: string, p: { quantidade: number; fazendaId: string; talhaoId: string }) => LeituraResultado;
   resolverDivergencia: (id: string) => void;
+  definirCodigoProduto: (id: string, codigo: string) => void;
   resetarDados: () => void;
 }
 
@@ -288,6 +289,12 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         commit((d) => {
           const x = d.divergencias.find((v) => v.id === id);
           if (x) x.resolvida = true;
+        }),
+
+      definirCodigoProduto: (id, codigo) =>
+        commit((d) => {
+          const x = d.produtos.find((v) => v.id === id);
+          if (x) x.codigo = codigo.trim().toUpperCase();
         }),
 
       resetarDados: () => setData(buildSeed()),

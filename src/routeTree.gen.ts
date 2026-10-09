@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as DivergenciasRouteImport } from './routes/divergencias'
 import { Route as FazendasRouteImport } from './routes/fazendas'
+import { Route as GerarQrRouteImport } from './routes/gerar-qr'
 import { Route as InsumosRouteImport } from './routes/insumos'
 import { Route as LerQrRouteImport } from './routes/ler-qr'
 import { Route as OrdensRouteImport } from './routes/ordens'
@@ -38,6 +39,11 @@ const DivergenciasRoute = DivergenciasRouteImport.update({
 const FazendasRoute = FazendasRouteImport.update({
   id: '/fazendas',
   path: '/fazendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GerarQrRoute = GerarQrRouteImport.update({
+  id: '/gerar-qr',
+  path: '/gerar-qr',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InsumosRoute = InsumosRouteImport.update({
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/configuracoes': typeof ConfiguracoesRoute
   '/divergencias': typeof DivergenciasRoute
   '/fazendas': typeof FazendasRoute
+  '/gerar-qr': typeof GerarQrRoute
   '/insumos': typeof InsumosRoute
   '/ler-qr': typeof LerQrRoute
   '/ordens': typeof OrdensRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof ConfiguracoesRoute
   '/divergencias': typeof DivergenciasRoute
   '/fazendas': typeof FazendasRoute
+  '/gerar-qr': typeof GerarQrRoute
   '/insumos': typeof InsumosRoute
   '/ler-qr': typeof LerQrRoute
   '/ordens': typeof OrdensRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/configuracoes': typeof ConfiguracoesRoute
   '/divergencias': typeof DivergenciasRoute
   '/fazendas': typeof FazendasRoute
+  '/gerar-qr': typeof GerarQrRoute
   '/insumos': typeof InsumosRoute
   '/ler-qr': typeof LerQrRoute
   '/ordens': typeof OrdensRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/divergencias'
     | '/fazendas'
+    | '/gerar-qr'
     | '/insumos'
     | '/ler-qr'
     | '/ordens'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/divergencias'
     | '/fazendas'
+    | '/gerar-qr'
     | '/insumos'
     | '/ler-qr'
     | '/ordens'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/divergencias'
     | '/fazendas'
+    | '/gerar-qr'
     | '/insumos'
     | '/ler-qr'
     | '/ordens'
@@ -152,6 +164,7 @@ export interface RootRouteChildren {
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   DivergenciasRoute: typeof DivergenciasRoute
   FazendasRoute: typeof FazendasRoute
+  GerarQrRoute: typeof GerarQrRoute
   InsumosRoute: typeof InsumosRoute
   LerQrRoute: typeof LerQrRoute
   OrdensRoute: typeof OrdensRoute
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/fazendas'
       fullPath: '/fazendas'
       preLoaderRoute: typeof FazendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gerar-qr': {
+      id: '/gerar-qr'
+      path: '/gerar-qr'
+      fullPath: '/gerar-qr'
+      preLoaderRoute: typeof GerarQrRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/insumos': {
@@ -240,6 +260,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiguracoesRoute: ConfiguracoesRoute,
   DivergenciasRoute: DivergenciasRoute,
   FazendasRoute: FazendasRoute,
+  GerarQrRoute: GerarQrRoute,
   InsumosRoute: InsumosRoute,
   LerQrRoute: LerQrRoute,
   OrdensRoute: OrdensRoute,

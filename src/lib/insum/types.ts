@@ -22,6 +22,7 @@ export interface Produto {
   nome: string;
   categoria: string;
   unidade: string;
+  codigo?: string;
 }
 
 export interface OrdemServico {
