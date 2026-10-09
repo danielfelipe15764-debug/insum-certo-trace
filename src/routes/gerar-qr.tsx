@@ -22,7 +22,7 @@ export const Route = createFileRoute("/gerar-qr")({
 
 function imprimir(p: Produto, url: string, copias: number) {
   const w = window.open("", "_blank", "width=800,height=900");
-  if (!w) return toast.error("Permita pop-ups para imprimir.");
+  if (!w) { toast.error("Permita pop-ups para imprimir."); return; }
   const etiqueta = `<div class="e"><img src="${url}"/><b>${p.codigo}</b><span>${p.nome}</span><small>Insumo Certo</small></div>`;
   w.document.write(`<html><head><title>QR ${p.codigo}</title><style>
     body{font-family:sans-serif;margin:16px;display:flex;flex-wrap:wrap;gap:12px}
@@ -39,7 +39,7 @@ function CartaoProduto({ p }: { p: Produto }) {
   const [copias, setCopias] = useState(1);
 
   useEffect(() => {
-    if (!p.codigo) return setUrl(null);
+    if (!p.codigo) { setUrl(null); return; }
     QRCode.toDataURL(p.codigo, { width: 360, margin: 1 }).then(setUrl).catch(() => setUrl(null));
   }, [p.codigo]);
 
@@ -80,7 +80,7 @@ function CartaoProduto({ p }: { p: Produto }) {
           />
           <button
             onClick={() => {
-              if (!codigo.trim()) return toast.error("Informe o código do produto.");
+              if (!codigo.trim()) { toast.error("Informe o código do produto."); return; }
               definirCodigoProduto(p.id, codigo);
               toast.success("Código cadastrado e QR Code gerado.");
             }}
