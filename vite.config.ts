@@ -32,6 +32,8 @@ const prerenderPages = STATIC_PAGES.map((p) => ({
   path: base === "/" ? p : `${base}${p === "/" ? "" : p.slice(1)}`,
 }));
 
+// GitHub Pages cannot run a server, so the CI build uses TanStack Start's SPA
+// mode: one static index.html shell, the client router takes over after load.
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
@@ -39,8 +41,15 @@ export default defineConfig({
     server: { entry: "server" },
     ...(githubPages
       ? {
-          pages: prerenderPages,
-          prerender: { enabled: true, autoStaticPathsDiscovery: false },
+          spa: {
+            enabled: true,
+            maskPath: base,
+            prerender: {
+              enabled: true,
+              outputPath: "index.html",
+              crawlLinks: true,
+            },
+          },
         }
       : {}),
   },
@@ -51,3 +60,4 @@ export default defineConfig({
       }
     : {}),
 });
+
