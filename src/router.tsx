@@ -8,7 +8,7 @@ export const getRouter = () => {
   const router = createRouter({
     routeTree,
     // GITHUB_PAGES builds live under a repo subpath on github.io (e.g. /insumo-certo/).
-    basepath: import.meta.env.VITE_BASE || "/",
+    basepath: import.meta.env["VITE_BASE"] || "/",
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
