@@ -45,4 +45,6 @@ export default defineConfig({
         nitro: { preset: "github-pages" },
       }
     : {}),
-});
+  tanstackStart: undefined,
+} as never);
+
