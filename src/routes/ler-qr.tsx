@@ -3,7 +3,10 @@ import { useCallback, useState } from "react";
 import { AlertTriangle, CheckCircle2, ArrowRight, Truck, MapPin, Sprout } from "lucide-react";
 import { QrScanner } from "@/components/insum/QrScanner";
 import { StatusBadge } from "@/components/insum/StatusBadge";
-import { useApp, type LeituraResultado } from "@/lib/insum/store";
+import { useApp, type Geo, type LeituraResultado } from "@/lib/insum/store";
+import { SatMap } from "@/components/insum/SatMap";
+import { Coordenadas } from "@/components/insum/Coordenadas";
+import { ALMOXARIFADO, centroide } from "@/lib/insum/geo";
 
 export const Route = createFileRoute("/ler-qr")({
   head: () => ({
@@ -62,11 +65,36 @@ function LerQr() {
     [insumoPorQr],
   );
 
-  function confirmar() {
-    if (!codigo) return;
-    if (etapa === "saida") setResultado(registrarSaida(codigo, { veiculo, motorista, fazendaId }));
-    else if (etapa === "chegada") setResultado(registrarChegada(codigo, { fazendaId }));
-    else setResultado(registrarAplicacao(codigo, { quantidade: Number(quantidade || 0), fazendaId, talhaoId }));
+  const [capturando, setCapturando] = useState(false);
+
+  function simulada(): Geo {
+    const jit = () => (Math.random() - 0.5) * 0.0008;
+    if (etapa === "saida") return { lat: ALMOXARIFADO.lat + jit(), lng: ALMOXARIFADO.lng + jit(), simulada: true };
+    const f = fazenda(fazendaId);
+    const t = f?.talhoes.find((x) => x.id === talhaoId);
+    const base = etapa === "aplicacao" && t ? centroide(t.poligono) : f?.sede ?? ALMOXARIFADO;
+    return { lat: base.lat + jit(), lng: base.lng + jit(), simulada: true };
+  }
+
+  function obterGeo(): Promise<Geo> {
+    return new Promise((resolve) => {
+      if (!("geolocation" in navigator)) return resolve(simulada());
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, simulada: false }),
+        () => resolve(simulada()),
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 },
+      );
+    });
+  }
+
+  async function confirmar() {
+    if (!codigo || capturando) return;
+    setCapturando(true);
+    const geo = await obterGeo();
+    setCapturando(false);
+    if (etapa === "saida") setResultado(registrarSaida(codigo, { veiculo, motorista, fazendaId, geo }));
+    else if (etapa === "chegada") setResultado(registrarChegada(codigo, { fazendaId, geo }));
+    else setResultado(registrarAplicacao(codigo, { quantidade: Number(quantidade || 0), fazendaId, talhaoId, geo }));
   }
 
   const talhoes = fazenda(fazendaId)?.talhoes ?? [];
@@ -116,6 +144,9 @@ function LerQr() {
             <div className="min-w-0">
               <p className="truncate text-xs font-semibold uppercase tracking-wide text-muted-foreground">{insumo.qrCode}</p>
               <p className="truncate text-lg font-bold text-foreground">{produto(insumo.produtoId)?.nome}</p>
+              <p className="text-sm text-muted-foreground">
+                NF {insumo.notaFiscal} · Venc. {new Date(insumo.vencimento + "T12:00:00").toLocaleDateString("pt-BR")}
+              </p>
               <p className="text-sm text-muted-foreground">
                 Lote {insumo.lote} · {insumo.quantidade} {produto(insumo.produtoId)?.unidade} · {ordem(insumo.osId)?.codigo}
               </p>
@@ -190,7 +221,7 @@ function LerQr() {
             onClick={confirmar}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-5 text-lg font-bold text-primary-foreground shadow-card active:scale-[0.99]"
           >
-            {etapa === "saida" ? "Confirmar saída" : etapa === "chegada" ? "Confirmar chegada" : "Confirmar aplicação"}
+            {capturando ? "Capturando localização..." : etapa === "saida" ? "Confirmar saída" : etapa === "chegada" ? "Confirmar chegada" : "Confirmar aplicação"}
             <ArrowRight className="h-5 w-5" />
           </button>
         </div>
@@ -215,6 +246,21 @@ function LerQr() {
                 </li>
               ))}
             </ul>
+          )}
+          {resultado.insumo && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              NF {resultado.insumo.notaFiscal} · Lote {resultado.insumo.lote} · Venc.{" "}
+              {new Date(resultado.insumo.vencimento + "T12:00:00").toLocaleDateString("pt-BR")}
+            </p>
+          )}
+          {resultado.geo && (
+            <div className="mt-3 space-y-2">
+              <SatMap
+                altura={300}
+                pins={[{ id: "leitura", lat: resultado.geo.lat, lng: resultado.geo.lng, cor: "#16a34a", letra: "●", titulo: "Local da leitura", linhas: [resultado.titulo] }]}
+              />
+              <Coordenadas lat={resultado.geo.lat} lng={resultado.geo.lng} simulada={resultado.geo.simulada} />
+            </div>
           )}
           {resultado.insumo && (
             <Link

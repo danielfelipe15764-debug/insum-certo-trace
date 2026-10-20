@@ -4,6 +4,9 @@ import { QrCode, Search, Package, Truck, MapPin, Sprout } from "lucide-react";
 import { fmtDataHora, useApp } from "@/lib/insum/store";
 import { StatusBadge } from "@/components/insum/StatusBadge";
 import { RouteTrackingMap } from "@/components/insum/RouteTrackingMap";
+import { EstouroBadge } from "@/components/insum/EstouroBadge";
+import { Coordenadas } from "@/components/insum/Coordenadas";
+import { calcularEstouro } from "@/lib/insum/estouro";
 
 export const Route = createFileRoute("/rastreabilidade")({
   validateSearch: (s: Record<string, unknown>) => ({ qr: typeof s["qr"] === "string" ? (s["qr"] as string) : "" }),
@@ -40,6 +43,8 @@ function Rastreabilidade() {
   });
   const insumo = data.insumos.find((i) => i.id === selecionado);
   const eventos = insumo ? eventosDe(insumo.id) : [];
+  const est = insumo ? calcularEstouro(insumo) : null;
+  const un = insumo ? insumo.unidade ?? produto(insumo.produtoId)?.unidade ?? "" : "";
 
   return (
     <div className="space-y-5">
@@ -96,8 +101,18 @@ function Rastreabilidade() {
                 </div>
                 <StatusBadge status={insumo.status} />
               </div>
+              {est && (
+                <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl bg-secondary px-3 py-2.5">
+                  <span className="text-sm text-muted-foreground">Recomendado <b className="text-foreground">{est.recomendado} {un}</b></span>
+                  <span className="text-muted-foreground">×</span>
+                  <span className="text-sm text-muted-foreground">Aplicado <b className="text-foreground">{est.aplicado} {un}</b></span>
+                  <EstouroBadge percentual={est.percentual} className="text-sm" />
+                </div>
+              )}
               <dl className="mt-4 grid grid-cols-2 gap-3 text-sm lg:grid-cols-4">
+                <Info k="Nota fiscal" v={insumo.notaFiscal} />
                 <Info k="Lote" v={insumo.lote} />
+                <Info k="Vencimento" v={new Date(insumo.vencimento + "T12:00:00").toLocaleDateString("pt-BR")} />
                 <Info k="Quantidade retirada" v={`${insumo.quantidade} ${produto(insumo.produtoId)?.unidade}`} />
                 <Info
                   k="Quantidade aplicada"
@@ -111,7 +126,7 @@ function Rastreabilidade() {
               </dl>
             </div>
 
-            <RouteTrackingMap insumo={insumo} destino={fazenda(insumo.fazendaId)} />
+            <RouteTrackingMap insumo={insumo} eventos={eventos} />
 
             <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
               <h3 className="text-sm font-bold text-foreground">Linha do tempo</h3>
@@ -138,6 +153,7 @@ function Rastreabilidade() {
                           {fmtDataHora(e.dataHora)} · {e.responsavel} ({e.perfil}) · {e.local}
                         </p>
                         <p className="mt-1 text-sm text-foreground/85">{e.detalhe}</p>
+                        <div className="mt-1.5"><Coordenadas lat={e.lat} lng={e.lng} simulada={e.localizacaoSimulada} /></div>
                       </div>
                     </li>
                   );
