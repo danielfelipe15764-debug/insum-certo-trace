@@ -1,8 +1,25 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { buildSeed } from "./seed";
-import type { AppData, Divergencia, Evento, Insumo, Perfil } from "./types";
+import type { AppData, ConfigEstouro, Divergencia, Evento, Insumo, Perfil } from "./types";
+import { ALMOXARIFADO } from "./geo";
 
-const STORAGE_KEY = "insumcerto:data:v1";
+export interface Geo {
+  lat: number;
+  lng: number;
+  simulada: boolean;
+}
+
+export interface NovoInsumo {
+  produtoId: string;
+  notaFiscal: string;
+  lote: string;
+  vencimento: string;
+  osId: string;
+  quantidade?: number | undefined;
+  unidade?: string | undefined;
+}
+
+const STORAGE_KEY = "insumcerto:data:v2";
 
 export interface LeituraResultado {
   ok: boolean;
@@ -10,6 +27,7 @@ export interface LeituraResultado {
   mensagem: string;
   divergencias: string[];
   insumo?: Insumo;
+  geo?: Geo;
 }
 
 interface Ctx {
@@ -22,9 +40,11 @@ interface Ctx {
   talhaoNome: (fazendaId: string, talhaoId: string) => string;
   insumoPorQr: (qr: string) => Insumo | undefined;
   eventosDe: (insumoId: string) => Evento[];
-  registrarSaida: (qr: string, p: { veiculo: string; motorista: string; fazendaId: string }) => LeituraResultado;
-  registrarChegada: (qr: string, p: { fazendaId: string }) => LeituraResultado;
-  registrarAplicacao: (qr: string, p: { quantidade: number; fazendaId: string; talhaoId: string }) => LeituraResultado;
+  registrarSaida: (qr: string, p: { veiculo: string; motorista: string; fazendaId: string; geo: Geo }) => LeituraResultado;
+  registrarChegada: (qr: string, p: { fazendaId: string; geo: Geo }) => LeituraResultado;
+  registrarAplicacao: (qr: string, p: { quantidade: number; fazendaId: string; talhaoId: string; geo: Geo }) => LeituraResultado;
+  criarInsumo: (n: NovoInsumo) => Insumo;
+  setConfig: (c: ConfigEstouro) => void;
   resolverDivergencia: (id: string) => void;
   definirCodigoProduto: (id: string, codigo: string) => void;
   resetarDados: () => void;
@@ -81,8 +101,12 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       local: string,
       detalhe: string,
       usr: { nome: string; perfil: Perfil },
+      geo: Geo,
     ) {
       d.eventos.push({
+        lat: geo.lat,
+        lng: geo.lng,
+        ...(geo.simulada ? { localizacaoSimulada: true } : {}),
         id: nid("evt"),
         insumoId,
         tipo,
@@ -151,6 +175,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
             "Almoxarifado Central",
             `Saída registrada · ${prod.nome} · lote ${i.lote} · ${i.quantidade} ${prod.unidade} · veículo ${p.veiculo} · motorista ${p.motorista} · destino ${fazenda(p.fazendaId)?.nome}`,
             usuarioAtual,
+            p.geo,
           );
           if (insumo.status !== "pendente")
             novaDivergencia(d, i.id, "qr_duplicado", `Segunda leitura de saída para ${i.qrCode}`, "baixa");
@@ -170,6 +195,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
           mensagem: `${prod.nome} · lote ${insumo.lote} · ${insumo.quantidade} ${prod.unidade} agora está EM TRANSPORTE para ${fazenda(p.fazendaId)?.nome}.`,
           divergencias: div,
           insumo,
+          geo: p.geo,
         };
       },
 
@@ -198,6 +224,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
               ? `Chegada registrada com divergência · ${prod.nome} · lote ${i.lote}`
               : `Chegada validada · ${prod.nome} · lote ${i.lote} · destino confere com ${os.codigo}`,
             usuarioAtual,
+            p.geo,
           );
           if (p.fazendaId !== insumo.fazendaId)
             novaDivergencia(
@@ -219,6 +246,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
           mensagem: `${prod.nome} · lote ${insumo.lote} · ${os.codigo} · ${fazenda(p.fazendaId)?.nome}.`,
           divergencias: div,
           insumo,
+          geo: p.geo,
         };
       },
 
@@ -254,6 +282,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
             `${fazenda(p.fazendaId)?.nome} · ${value_talhao(p.fazendaId, p.talhaoId)}`,
             `Aplicação confirmada · ${prod.nome} · ${p.quantidade} ${prod.unidade} · ${os.codigo}`,
             usuarioAtual,
+            p.geo,
           );
           if (p.quantidade !== insumo.quantidade)
             novaDivergencia(
@@ -282,6 +311,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
           mensagem: `${prod.nome} · ${p.quantidade} ${prod.unidade} · ${os.codigo} · ${fazenda(p.fazendaId)?.nome}.`,
           divergencias: div,
           insumo,
+          geo: p.geo,
         };
       },
 
@@ -296,6 +326,44 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
           const x = d.produtos.find((v) => v.id === id);
           if (x) x.codigo = codigo.trim().toUpperCase();
         }),
+
+      criarInsumo: (n) => {
+        const prod = produto(n.produtoId)!;
+        const os = ordem(n.osId)!;
+        const maior = data.insumos.reduce((m, i) => Math.max(m, Number(i.qrCode.replace(/\D/g, "")) || 0), 100);
+        let numero = maior + 1;
+        while (data.insumos.some((i) => i.qrCode === `QR-INS-${String(numero).padStart(6, "0")}`)) numero++;
+        const novo: Insumo = {
+          id: nid("ins"),
+          qrCode: `QR-INS-${String(numero).padStart(6, "0")}`,
+          produtoId: n.produtoId,
+          lote: n.lote.trim().toUpperCase(),
+          notaFiscal: n.notaFiscal.trim(),
+          vencimento: n.vencimento,
+          quantidade: n.quantidade ?? 0,
+          ...(n.unidade ? { unidade: n.unidade } : {}),
+          osId: os.id,
+          fazendaId: os.fazendaId,
+          talhaoId: os.talhaoId,
+          status: "pendente",
+        };
+        const un = n.unidade || prod.unidade;
+        commit((d) => {
+          d.insumos.push(novo);
+          novoEvento(
+            d,
+            novo.id,
+            "cadastro",
+            ALMOXARIFADO.nome,
+            `QR Code gerado para ${prod.nome} · NF ${novo.notaFiscal} · lote ${novo.lote} · venc. ${novo.vencimento.split("-").reverse().join("/")}${n.quantidade ? ` · ${n.quantidade} ${un}` : ""}`,
+            usuarioAtual,
+            { lat: ALMOXARIFADO.lat, lng: ALMOXARIFADO.lng, simulada: true },
+          );
+        });
+        return novo;
+      },
+
+      setConfig: (c) => commit((d) => { d.config = c; }),
 
       resetarDados: () => setData(buildSeed()),
     };
