@@ -25,13 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
       - name: Build static SPA
-        run: npm run build
+        run: bun run build
         env:
           GITHUB_PAGES: "1"
           # Pages serves the site under /<repo-name>/ — the app and its assets
