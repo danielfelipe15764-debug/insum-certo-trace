@@ -56,7 +56,7 @@ function montarFazendas(): Fazenda[] {
         const lat = f.sede.lat + 0.0025 + (k % 2) * 0.0005;
         const lng = f.sede.lng + 0.0025 + offset;
         const poligono = retanguloHa(lat, lng, t.areaHa);
-        offset += (poligono[2]![1] - lng) + 0.0018;
+        offset += (poligono[2]![1] - lng) + 0.004;
         return { ...t, poligono };
       }),
     };

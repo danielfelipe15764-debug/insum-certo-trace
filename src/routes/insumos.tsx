@@ -4,6 +4,7 @@ import { Search, QrCode } from "lucide-react";
 import { StatusBadge } from "@/components/insum/StatusBadge";
 import { useApp } from "@/lib/insum/store";
 import { exportarCsv } from "@/lib/insum/export";
+import { calcularEstouro, fmtEstouro } from "@/lib/insum/estouro";
 
 export const Route = createFileRoute("/insumos")({
   head: () => ({
@@ -45,13 +46,17 @@ function Insumos() {
           onClick={() =>
             exportarCsv(
               "insumcerto-insumos",
-              ["QR Code", "Produto", "Lote", "Quantidade", "Unidade", "OS", "Fazenda", "Talhão", "Status"],
+              ["QR Code", "Produto", "NF", "Lote", "Vencimento", "Quantidade", "Aplicado", "Unidade", "Estouro %", "OS", "Fazenda", "Talhão", "Status"],
               lista.map((i) => [
                 i.qrCode,
                 produto(i.produtoId)?.nome ?? "",
+                i.notaFiscal,
                 i.lote,
+                new Date(i.vencimento + "T12:00:00").toLocaleDateString("pt-BR"),
                 i.quantidade,
-                produto(i.produtoId)?.unidade ?? "",
+                i.quantidadeAplicada ?? "",
+                i.unidade ?? produto(i.produtoId)?.unidade ?? "",
+                (() => { const e = calcularEstouro(i); return e ? fmtEstouro(e.percentual) : ""; })(),
                 ordem(i.osId)?.codigo ?? "",
                 fazenda(i.fazendaId)?.nome ?? "",
                 talhaoNome(i.fazendaId, i.talhaoId),

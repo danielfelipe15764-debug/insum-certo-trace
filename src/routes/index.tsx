@@ -1,35 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Legend,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { AlertTriangle, CheckCircle2, Clock, PackageCheck, Truck, QrCode } from "lucide-react";
-import { fmtDataHora, useApp } from "@/lib/insum/store";
-import { StatusBadge } from "@/components/insum/StatusBadge";
+import { useMemo, useState } from "react";
+import { Bar, BarChart, CartesianGrid, Cell, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { AlertTriangle, Gauge, PackagePlus, ShieldCheck, Truck } from "lucide-react";
+import { useApp } from "@/lib/insum/store";
+import { calcularEstouro, faixaCor, faixaEstouro, fmtEstouro } from "@/lib/insum/estouro";
+import { EstouroBadge } from "@/components/insum/EstouroBadge";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Painel de controle · Insumo Certo" },
+      { title: "Painel gerencial · Insumo Certo" },
       {
         name: "description",
-        content:
-          "Painel com indicadores de insumos agrícolas em transporte, entregues, aplicados, pendentes e divergências por fazenda e produto.",
+        content: "Painel gerencial de estouro de aplicação de insumos agrícolas por fazenda, produto e talhão.",
       },
-      { property: "og:title", content: "Painel de controle · Insumo Certo" },
-      {
-        property: "og:description",
-        content: "Rastreabilidade total do insumo agrícola do almoxarifado até a aplicação no talhão.",
-      },
+      { property: "og:title", content: "Painel gerencial · Insumo Certo" },
+      { property: "og:description", content: "O que foi aplicado, onde houve estouro e quanto isso representa." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -37,218 +23,198 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
-const CORES = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
+const media = (v: number[]) => (v.length ? v.reduce((s, x) => s + x, 0) / v.length : 0);
 
-function Kpi({
-  icone: Icone,
-  titulo,
-  valor,
-  cor,
-}: {
-  icone: typeof Truck;
-  titulo: string;
-  valor: number;
-  cor: string;
-}) {
+function Dashboard() {
+  const { data, produto, fazenda, talhaoNome, eventosDe } = useApp();
+  const [de, setDe] = useState("");
+  const [ate, setAte] = useState("");
+  const [fazendaId, setFazendaId] = useState("");
+  const [produtoId, setProdutoId] = useState("");
+  const cfg = data.config;
+
+  const aplicacoes = useMemo(
+    () =>
+      data.insumos.flatMap((i) => {
+        const est = calcularEstouro(i);
+        const ev = eventosDe(i.id).filter((e) => e.tipo === "aplicacao").pop();
+        if (!est || !ev) return [];
+        const dia = ev.dataHora.slice(0, 10);
+        if (de && dia < de) return [];
+        if (ate && dia > ate) return [];
+        if (fazendaId && i.fazendaId !== fazendaId) return [];
+        if (produtoId && i.produtoId !== produtoId) return [];
+        const p = produto(i.produtoId);
+        return [{ i, est, data: ev.dataHora, p, un: i.unidade ?? p?.unidade ?? "", faixa: faixaEstouro(est.percentual, cfg) }];
+      }),
+    [data, de, ate, fazendaId, produtoId, cfg, eventosDe, produto],
+  );
+
+  const estouroMedio = media(aplicacoes.map((a) => a.est.percentual));
+  const excedente = Object.entries(
+    aplicacoes.reduce<Record<string, number>>((acc, a) => ({ ...acc, [a.un]: (acc[a.un] ?? 0) + a.est.excedente }), {}),
+  ).filter(([, v]) => v > 0);
+  const criticos = aplicacoes.filter((a) => a.faixa === "critico").length;
+  const pctPadrao = aplicacoes.length ? (aplicacoes.filter((a) => a.faixa === "padrao").length / aplicacoes.length) * 100 : 0;
+
+  const porFazenda = data.fazendas
+    .map((f) => {
+      const v = aplicacoes.filter((a) => a.i.fazendaId === f.id).map((a) => a.est.percentual);
+      return { nome: f.nome.replace("Fazenda ", ""), estouro: Number(media(v).toFixed(1)), n: v.length };
+    })
+    .filter((x) => x.n > 0);
+  const porProduto = data.produtos
+    .map((p) => {
+      const v = aplicacoes.filter((a) => a.i.produtoId === p.id).map((a) => a.est.percentual);
+      return { nome: p.nome, estouro: Number(media(v).toFixed(1)), n: v.length };
+    })
+    .filter((x) => x.n > 0)
+    .sort((a, b) => b.estouro - a.estouro);
+  const top5 = [...aplicacoes].sort((a, b) => b.est.percentual - a.est.percentual).slice(0, 5);
+
+  const cont = (s: string) => data.insumos.filter((i) => i.status === s).length;
+  const abertas = data.divergencias.filter((d) => !d.resolvida).length;
+  const corBarra = (v: number) => faixaCor[faixaEstouro(v, cfg)];
+
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
-      <div className="flex items-center gap-3">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl" style={{ background: `color-mix(in oklab, ${cor} 15%, transparent)`, color: cor }}>
-          <Icone className="h-5 w-5" />
-        </span>
-        <div className="min-w-0">
-          <p className="truncate text-xs font-medium text-muted-foreground">{titulo}</p>
-          <p className="text-2xl font-extrabold leading-tight text-foreground">{valor}</p>
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-extrabold text-foreground">Painel gerencial</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{aplicacoes.length} aplicações analisadas</p>
+        </div>
+        <div className="flex flex-wrap gap-2 text-xs font-semibold">
+          <Chip icon={Truck} v={cont("em_transporte")} k="em transporte" />
+          <Chip icon={PackagePlus} v={cont("pendente")} k="pendentes" />
+          <Link to="/divergencias"><Chip icon={AlertTriangle} v={abertas} k="divergências" alerta={abertas > 0} /></Link>
         </div>
       </div>
+
+      <div className="grid grid-cols-2 gap-3 rounded-2xl border border-border bg-card p-3 shadow-card lg:grid-cols-4">
+        <Campo label="De"><input type="date" value={de} onChange={(e) => setDe(e.target.value)} className={inputCls} /></Campo>
+        <Campo label="Até"><input type="date" value={ate} onChange={(e) => setAte(e.target.value)} className={inputCls} /></Campo>
+        <Campo label="Fazenda">
+          <select value={fazendaId} onChange={(e) => setFazendaId(e.target.value)} className={inputCls}>
+            <option value="">Todas</option>
+            {data.fazendas.map((f) => <option key={f.id} value={f.id}>{f.nome}</option>)}
+          </select>
+        </Campo>
+        <Campo label="Produto">
+          <select value={produtoId} onChange={(e) => setProdutoId(e.target.value)} className={inputCls}>
+            <option value="">Todos</option>
+            {data.produtos.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
+          </select>
+        </Campo>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <Kpi icon={Gauge} titulo="Estouro médio geral" valor={aplicacoes.length ? fmtEstouro(estouroMedio) : "—"} cor={corBarra(estouroMedio)} />
+        <Kpi
+          icon={AlertTriangle}
+          titulo="Volume excedente"
+          valor={excedente.length ? excedente.map(([u, v]) => `${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} ${u}`).join(" · ") : "0"}
+          cor="var(--warning)"
+          pequeno={excedente.length > 1}
+        />
+        <Kpi icon={AlertTriangle} titulo="Aplicações críticas" valor={String(criticos)} cor="var(--destructive)" />
+        <Kpi icon={ShieldCheck} titulo="Dentro do padrão" valor={`${pctPadrao.toFixed(0)}%`} cor="var(--success)" />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Painel titulo="Estouro % por fazenda">
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={porFazenda} margin={{ top: 10, right: 8, left: -18, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="nome" tick={{ fontSize: 11 }} interval={0} />
+              <YAxis tick={{ fontSize: 11 }} unit="%" />
+              <ReferenceLine y={0} stroke="var(--muted-foreground)" />
+              <Tooltip formatter={(v: number) => fmtEstouro(v)} cursor={{ fill: "var(--muted)" }} />
+              <Bar dataKey="estouro" name="Estouro médio" radius={[6, 6, 0, 0]} label={{ position: "top", fontSize: 11, formatter: (v: number) => fmtEstouro(v) }}>
+                {porFazenda.map((x) => <Cell key={x.nome} fill={corBarra(x.estouro)} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </Painel>
+        <Painel titulo="Estouro % por produto">
+          <ResponsiveContainer width="100%" height={Math.max(220, porProduto.length * 38)}>
+            <BarChart data={porProduto} layout="vertical" margin={{ top: 0, right: 48, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+              <XAxis type="number" tick={{ fontSize: 11 }} unit="%" />
+              <YAxis type="category" dataKey="nome" width={130} tick={{ fontSize: 11 }} />
+              <ReferenceLine x={0} stroke="var(--muted-foreground)" />
+              <Tooltip formatter={(v: number) => fmtEstouro(v)} cursor={{ fill: "var(--muted)" }} />
+              <Bar dataKey="estouro" name="Estouro médio" radius={[0, 6, 6, 0]} label={{ position: "right", fontSize: 11, formatter: (v: number) => fmtEstouro(v) }}>
+                {porProduto.map((x) => <Cell key={x.nome} fill={corBarra(x.estouro)} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </Painel>
+      </div>
+
+      <Painel titulo="Top 5 maiores estouros">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm">
+            <thead>
+              <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                {["Fazenda", "Talhão", "Produto", "Recomendado", "Aplicado", "Estouro", "Data"].map((c) => <th key={c} className="px-2 py-2">{c}</th>)}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {top5.map((a) => (
+                <tr key={a.i.id}>
+                  <td className="px-2 py-2.5 font-semibold text-foreground">{fazenda(a.i.fazendaId)?.nome.replace("Fazenda ", "")}</td>
+                  <td className="px-2 py-2.5 text-muted-foreground">{talhaoNome(a.i.fazendaId, a.i.talhaoId)}</td>
+                  <td className="px-2 py-2.5 text-foreground">
+                    <Link to="/rastreabilidade" search={{ qr: a.i.qrCode }} className="hover:underline">{a.p?.nome}</Link>
+                  </td>
+                  <td className="px-2 py-2.5 text-muted-foreground">{a.est.recomendado} {a.un}</td>
+                  <td className="px-2 py-2.5 font-semibold text-foreground">{a.est.aplicado} {a.un}</td>
+                  <td className="px-2 py-2.5"><EstouroBadge percentual={a.est.percentual} /></td>
+                  <td className="px-2 py-2.5 whitespace-nowrap text-muted-foreground">{new Date(a.data).toLocaleDateString("pt-BR")}</td>
+                </tr>
+              ))}
+              {top5.length === 0 && <tr><td colSpan={7} className="px-2 py-6 text-center text-muted-foreground">Nenhuma aplicação no filtro.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </Painel>
     </div>
   );
 }
 
-function Dashboard() {
-  const { data, produto, fazenda, ordem, talhaoNome } = useApp();
+const inputCls = "h-11 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring";
 
-  const conta = (s: string) => data.insumos.filter((i) => i.status === s).length;
-  const divAbertas = data.divergencias.filter((d) => !d.resolvida);
-
-  const porFazenda = data.fazendas.map((f) => {
-    const list = data.insumos.filter((i) => i.fazendaId === f.id);
-    return {
-      nome: f.nome.replace("Fazenda ", ""),
-      Transporte: list.filter((i) => i.status === "em_transporte").length,
-      Entregue: list.filter((i) => i.status === "entregue").length,
-      Aplicado: list.filter((i) => i.status === "aplicado").length,
-      Pendente: list.filter((i) => i.status === "pendente").length,
-    };
-  });
-
-  const porProduto = data.produtos
-    .map((p) => ({ name: p.nome.split(" ")[0], value: data.insumos.filter((i) => i.produtoId === p.id).length }))
-    .filter((x) => x.value > 0);
-
-  const ultimos = [...data.eventos].sort((a, b) => b.dataHora.localeCompare(a.dataHora)).slice(0, 8);
-
+function Campo({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-6">
-      <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-card lg:p-8">
-        <p className="text-xs font-semibold uppercase tracking-wider opacity-80">Painel operacional</p>
-        <h1 className="mt-1 text-2xl font-extrabold lg:text-3xl">Rastreabilidade total dos seus insumos</h1>
-        <p className="mt-2 max-w-2xl text-sm opacity-90">
-          Cada produto possui um QR Code único. Leia na saída, na chegada e na aplicação — o histórico fica
-          permanente e consultável.
-        </p>
-        <Link
-          to="/ler-qr"
-          className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-card px-5 py-3.5 text-base font-bold text-primary shadow-card"
-        >
-          <QrCode className="h-5 w-5" /> Ler QR Code agora
-        </Link>
-      </section>
+    <label className="block min-w-0">
+      <span className="mb-1 block text-xs font-semibold text-muted-foreground">{label}</span>
+      {children}
+    </label>
+  );
+}
 
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <Kpi icone={Truck} titulo="Em transporte" valor={conta("em_transporte")} cor="var(--info)" />
-        <Kpi icone={PackageCheck} titulo="Entregues" valor={conta("entregue")} cor="var(--warning)" />
-        <Kpi icone={CheckCircle2} titulo="Aplicados" valor={conta("aplicado")} cor="var(--success)" />
-        <Kpi icone={Clock} titulo="Pendentes" valor={conta("pendente")} cor="var(--muted-foreground)" />
-        <Kpi icone={AlertTriangle} titulo="Divergências" valor={divAbertas.length} cor="var(--destructive)" />
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-card xl:col-span-2">
-          <h2 className="text-sm font-bold text-foreground">Insumos por fazenda</h2>
-          <div className="mt-4 h-[280px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={porFazenda} barGap={2}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="nome" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" interval={0} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
-                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--border)", fontSize: 12 }} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="Pendente" stackId="a" fill="var(--muted-foreground)" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="Transporte" stackId="a" fill="var(--chart-4)" />
-                <Bar dataKey="Entregue" stackId="a" fill="var(--chart-3)" />
-                <Bar dataKey="Aplicado" stackId="a" fill="var(--chart-1)" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
-          <h2 className="text-sm font-bold text-foreground">Volume de QR Codes por produto</h2>
-          <div className="mt-4 h-[280px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={porProduto} dataKey="value" nameKey="name" innerRadius={50} outerRadius={85} paddingAngle={2}>
-                  {porProduto.map((_, i) => (
-                    <Cell key={i} fill={CORES[i % CORES.length]} />
-                  ))}
-                </Pie>
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--border)", fontSize: 12 }} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-card xl:col-span-2">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-sm font-bold text-foreground">Últimas leituras</h2>
-            <Link to="/rastreabilidade" search={{ qr: "" }} className="shrink-0 text-xs font-semibold text-primary">
-              Ver rastreabilidade
-            </Link>
-          </div>
-          <ul className="mt-3 divide-y divide-border">
-            {ultimos.map((e) => {
-              const ins = data.insumos.find((i) => i.id === e.insumoId);
-              const p = ins ? produto(ins.produtoId) : undefined;
-              return (
-                <li key={e.id} className="flex items-start gap-3 py-3">
-                  <StatusBadge
-                    status={e.tipo === "aplicacao" ? "aplicado" : e.tipo === "chegada" ? "entregue" : e.tipo === "saida" ? "em_transporte" : "pendente"}
-                    label={
-                      e.tipo === "aplicacao" ? "Aplicação" : e.tipo === "chegada" ? "Chegada" : e.tipo === "saida" ? "Saída" : "Cadastro"
-                    }
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-foreground">
-                      {ins?.qrCode} · {p?.nome}
-                    </p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {e.local} · {e.responsavel} · {fmtDataHora(e.dataHora)}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-sm font-bold text-foreground">Divergências abertas</h2>
-            <Link to="/divergencias" className="shrink-0 text-xs font-semibold text-primary">
-              Central
-            </Link>
-          </div>
-          {divAbertas.length === 0 ? (
-            <p className="mt-4 text-sm text-muted-foreground">Nenhuma divergência em aberto.</p>
-          ) : (
-            <ul className="mt-3 space-y-3">
-              {divAbertas.slice(0, 5).map((d) => (
-                <li key={d.id} className="rounded-xl bg-destructive/8 p-3">
-                  <StatusBadge status={d.severidade} label={d.severidade.toUpperCase()} />
-                  <p className="mt-2 text-xs text-foreground">{d.descricao}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-border bg-card p-4 shadow-card">
-        <h2 className="text-sm font-bold text-foreground">Ordens de serviço em andamento</h2>
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-[640px] text-sm">
-            <thead>
-              <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="py-2 pr-4">OS</th>
-                <th className="py-2 pr-4">Fazenda / Talhão</th>
-                <th className="py-2 pr-4">Responsável</th>
-                <th className="py-2 pr-4">Progresso</th>
-                <th className="py-2">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {data.ordens.map((o) => {
-                const itens = data.insumos.filter((i) => i.osId === o.id);
-                const aplicados = itens.filter((i) => i.status === "aplicado").length;
-                const pct = itens.length ? Math.round((aplicados / itens.length) * 100) : 0;
-                return (
-                  <tr key={o.id}>
-                    <td className="py-3 pr-4 font-semibold text-foreground">{o.codigo}</td>
-                    <td className="py-3 pr-4 text-muted-foreground">
-                      {fazenda(o.fazendaId)?.nome} · {talhaoNome(o.fazendaId, o.talhaoId)}
-                    </td>
-                    <td className="py-3 pr-4 text-muted-foreground">{o.responsavel}</td>
-                    <td className="py-3 pr-4">
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-28 overflow-hidden rounded-full bg-muted">
-                          <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
-                        </div>
-                        <span className="text-xs text-muted-foreground">{pct}%</span>
-                      </div>
-                    </td>
-                    <td className="py-3">
-                      <StatusBadge status={ordem(o.id)?.status ?? o.status} />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
+function Kpi({ icon: Icon, titulo, valor, cor, pequeno }: { icon: typeof Gauge; titulo: string; valor: string; cor: string; pequeno?: boolean }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-card" style={{ borderTop: `4px solid ${cor}` }}>
+      <p className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground"><Icon className="h-4 w-4" style={{ color: cor }} /> {titulo}</p>
+      <p className={`mt-2 font-extrabold leading-tight text-foreground ${pequeno ? "text-xl sm:text-2xl" : "text-3xl sm:text-4xl"}`}>{valor}</p>
     </div>
+  );
+}
+
+function Painel({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-4 shadow-card">
+      <h2 className="mb-3 text-sm font-bold text-foreground">{titulo}</h2>
+      {children}
+    </section>
+  );
+}
+
+function Chip({ icon: Icon, v, k, alerta }: { icon: typeof Gauge; v: number; k: string; alerta?: boolean }) {
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 ${alerta ? "bg-destructive/12 text-destructive" : "bg-secondary text-secondary-foreground"}`}>
+      <Icon className="h-3.5 w-3.5" /> <b>{v}</b> {k}
+    </span>
   );
 }

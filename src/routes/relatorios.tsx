@@ -4,6 +4,8 @@ import { FileSpreadsheet, FileText } from "lucide-react";
 import { StatusBadge } from "@/components/insum/StatusBadge";
 import { fmtDataHora, statusLabel, useApp } from "@/lib/insum/store";
 import { exportarCsv, exportarPdf } from "@/lib/insum/export";
+import { calcularEstouro, fmtEstouro } from "@/lib/insum/estouro";
+import { fmtCoord } from "@/lib/insum/geo";
 
 export const Route = createFileRoute("/relatorios")({
   head: () => ({
@@ -24,8 +26,8 @@ export const Route = createFileRoute("/relatorios")({
 
 function Relatorios() {
   const { data, produto, fazenda, ordem, talhaoNome, eventosDe } = useApp();
-  const [de, setDe] = useState("2026-09-10");
-  const [ate, setAte] = useState("2026-09-22");
+  const [de, setDe] = useState("2026-09-01");
+  const [ate, setAte] = useState(() => new Date().toISOString().slice(0, 10));
   const [fazendaId, setFazendaId] = useState("");
   const [produtoId, setProdutoId] = useState("");
   const [osId, setOsId] = useState("");
@@ -49,6 +51,10 @@ function Relatorios() {
         qr: i.qrCode,
         produto: p.nome,
         lote: i.lote,
+        nf: i.notaFiscal,
+        venc: new Date(i.vencimento + "T12:00:00").toLocaleDateString("pt-BR"),
+        estouro: (() => { const e = calcularEstouro(i); return e ? fmtEstouro(e.percentual) : "—"; })(),
+        coord: fmtCoord(ultimo.lat, ultimo.lng),
         retirado: `${i.quantidade} ${p.unidade}`,
         aplicado: i.quantidadeAplicada !== undefined ? `${i.quantidadeAplicada} ${p.unidade}` : "—",
         os: ordem(i.osId)?.codigo ?? "",
@@ -59,8 +65,8 @@ function Relatorios() {
       };
     });
 
-  const colunas = ["QR Code", "Produto", "Lote", "Retirado", "Aplicado", "OS", "Fazenda / Talhão", "Status", "Última leitura", "Responsável"];
-  const matriz = linhasDados.map((l) => [l.qr, l.produto, l.lote, l.retirado, l.aplicado, l.os, l.local, l.status, l.ultima, l.responsavel]);
+  const colunas = ["QR Code", "Produto", "NF", "Lote", "Vencimento", "Retirado", "Aplicado", "Estouro %", "OS", "Fazenda / Talhão", "Status", "Última leitura", "Lat/long", "Responsável"];
+  const matriz = linhasDados.map((l) => [l.qr, l.produto, l.nf, l.lote, l.venc, l.retirado, l.aplicado, l.estouro, l.os, l.local, l.status, l.ultima, l.coord, l.responsavel]);
   const subtitulo = `Período ${new Date(de + "T12:00:00").toLocaleDateString("pt-BR")} a ${new Date(ate + "T12:00:00").toLocaleDateString("pt-BR")} · ${linhasDados.length} registros`;
 
   return (
@@ -127,7 +133,7 @@ function Relatorios() {
       <p className="text-sm text-muted-foreground">{subtitulo}</p>
 
       <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
-        <table className="w-full min-w-[980px] text-sm">
+        <table className="w-full min-w-[1400px] text-sm">
           <thead className="bg-secondary/60">
             <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
               {colunas.map((c) => (
@@ -142,15 +148,19 @@ function Relatorios() {
               <tr key={l.qr}>
                 <td className="px-3 py-3 font-semibold text-foreground">{l.qr}</td>
                 <td className="px-3 py-3 text-foreground">{l.produto}</td>
+                <td className="px-3 py-3 text-muted-foreground">{l.nf}</td>
                 <td className="px-3 py-3 text-muted-foreground">{l.lote}</td>
+                <td className="px-3 py-3 text-muted-foreground">{l.venc}</td>
                 <td className="px-3 py-3 text-muted-foreground">{l.retirado}</td>
                 <td className="px-3 py-3 text-muted-foreground">{l.aplicado}</td>
+                <td className="px-3 py-3 font-semibold text-foreground">{l.estouro}</td>
                 <td className="px-3 py-3 text-muted-foreground">{l.os}</td>
                 <td className="px-3 py-3 text-muted-foreground">{l.local}</td>
                 <td className="px-3 py-3">
                   <StatusBadge status={Object.keys(statusLabel).find((k) => statusLabel[k] === l.status) ?? "pendente"} label={l.status} />
                 </td>
                 <td className="px-3 py-3 whitespace-nowrap text-muted-foreground">{l.ultima}</td>
+                <td className="px-3 py-3 whitespace-nowrap font-mono text-xs text-muted-foreground">{l.coord}</td>
                 <td className="px-3 py-3 text-muted-foreground">{l.responsavel}</td>
               </tr>
             ))}

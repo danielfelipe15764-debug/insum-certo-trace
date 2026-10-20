@@ -50,7 +50,7 @@ export default function SatMapLeaflet({ pins, linha, poligonos = [], altura = 34
           </Polygon>
         ))}
         {linha && pins.length > 1 && (
-          <Polyline positions={pins.map((p) => [p.lat, p.lng])} pathOptions={{ color: "#38bdf8", weight: 4, dashArray: "8 8" }} />
+          <Polyline positions={pins.map((p) => [p.lat, p.lng] as [number, number])} pathOptions={{ color: "#38bdf8", weight: 4, dashArray: "8 8" }} />
         )}
         {pins.map((p) => (
           <Marker key={p.id} position={[p.lat, p.lng]} icon={icone(p)}>
