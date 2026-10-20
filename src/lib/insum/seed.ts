@@ -1,8 +1,11 @@
-import type { AppData, Evento, Insumo, Divergencia, StatusInsumo } from "./types";
+import type { AppData, Evento, Insumo, Divergencia, StatusInsumo, Fazenda } from "./types";
+import { ALMOXARIFADO, centroide, retanguloHa } from "./geo";
+import { CONFIG_ESTOURO_PADRAO } from "./estouro";
 
-const fazendas = [
+const fazendasBase = [
   {
     id: "faz-1",
+    sede: { lat: -17.8612, lng: -50.9815 },
     nome: "Fazenda Santa Luzia",
     municipio: "Rio Verde / GO",
     talhoes: [
@@ -13,6 +16,7 @@ const fazendas = [
   },
   {
     id: "faz-2",
+    sede: { lat: -17.9318, lng: -51.6524 },
     nome: "Fazenda Boa Esperança",
     municipio: "Jataí / GO",
     talhoes: [
@@ -22,6 +26,7 @@ const fazendas = [
   },
   {
     id: "faz-3",
+    sede: { lat: -18.7814, lng: -52.5803 },
     nome: "Fazenda Três Lagoas",
     municipio: "Chapadão do Sul / MS",
     talhoes: [
@@ -31,6 +36,7 @@ const fazendas = [
   },
   {
     id: "faz-4",
+    sede: { lat: -12.1196, lng: -45.8317 },
     nome: "Fazenda Vale do Sol",
     municipio: "Luís Eduardo Magalhães / BA",
     talhoes: [
@@ -39,6 +45,25 @@ const fazendas = [
     ],
   },
 ];
+
+
+function montarFazendas(): Fazenda[] {
+  return fazendasBase.map((f) => {
+    let offset = 0;
+    return {
+      ...f,
+      talhoes: f.talhoes.map((t, k) => {
+        const lat = f.sede.lat + 0.0025 + (k % 2) * 0.0005;
+        const lng = f.sede.lng + 0.0025 + offset;
+        const poligono = retanguloHa(lat, lng, t.areaHa);
+        offset += (poligono[2]![1] - lng) + 0.0018;
+        return { ...t, poligono };
+      }),
+    };
+  });
+}
+
+const fazendas = montarFazendas();
 
 const produtos = [
   { id: "prd-1", codigo: "GLI-480", nome: "Glifosato 480 SL", categoria: "Herbicida", unidade: "L" },
@@ -139,21 +164,28 @@ interface SeedRow {
 }
 
 const rows: SeedRow[] = [
-  { qr: "QR-INS-000101", produtoId: "prd-1", lote: "L-2409-A", qtd: 600, osId: "os-1", status: "aplicado", veiculo: "Truck MBB-1029", motorista: "Pedro Rocha", aplicada: 600, dias: 4 },
-  { qr: "QR-INS-000102", produtoId: "prd-7", lote: "L-2409-B", qtd: 120, osId: "os-1", status: "aplicado", veiculo: "Truck MBB-1029", motorista: "Pedro Rocha", aplicada: 105, dias: 4 },
+  { qr: "QR-INS-000101", produtoId: "prd-1", lote: "L-2409-A", qtd: 600, osId: "os-1", status: "aplicado", veiculo: "Truck MBB-1029", motorista: "Pedro Rocha", aplicada: 618, dias: 4 },
+  { qr: "QR-INS-000102", produtoId: "prd-7", lote: "L-2409-B", qtd: 120, osId: "os-1", status: "aplicado", veiculo: "Truck MBB-1029", motorista: "Pedro Rocha", aplicada: 108, dias: 4 },
   { qr: "QR-INS-000103", produtoId: "prd-3", lote: "L-2408-K", qtd: 32, osId: "os-2", status: "em_transporte", veiculo: "Bitrem VWX-7781", motorista: "Luís Ferreira", dias: 1 },
   { qr: "QR-INS-000104", produtoId: "prd-4", lote: "L-2408-M", qtd: 28, osId: "os-2", status: "em_transporte", veiculo: "Bitrem VWX-7781", motorista: "Luís Ferreira", dias: 1 },
   { qr: "QR-INS-000105", produtoId: "prd-5", lote: "L-2409-C", qtd: 80, osId: "os-3", status: "entregue", veiculo: "Camionete JKL-4402", motorista: "Pedro Rocha", dias: 2 },
-  { qr: "QR-INS-000106", produtoId: "prd-2", lote: "L-2409-D", qtd: 240, osId: "os-6", status: "aplicado", veiculo: "Truck MBB-1029", motorista: "Luís Ferreira", aplicada: 240, dias: 6 },
-  { qr: "QR-INS-000107", produtoId: "prd-8", lote: "L-2409-E", qtd: 150, osId: "os-5", status: "aplicado", veiculo: "Camionete JKL-4402", motorista: "Pedro Rocha", aplicada: 150, dias: 7 },
+  { qr: "QR-INS-000106", produtoId: "prd-2", lote: "L-2409-D", qtd: 240, osId: "os-6", status: "aplicado", veiculo: "Truck MBB-1029", motorista: "Luís Ferreira", aplicada: 259, dias: 6 },
+  { qr: "QR-INS-000107", produtoId: "prd-8", lote: "L-2409-E", qtd: 150, osId: "os-5", status: "aplicado", veiculo: "Camionete JKL-4402", motorista: "Pedro Rocha", aplicada: 180, dias: 7 },
   { qr: "QR-INS-000108", produtoId: "prd-6", lote: "L-2409-F", qtd: 420, osId: "os-4", status: "pendente", dias: 0 },
   { qr: "QR-INS-000109", produtoId: "prd-3", lote: "L-2408-N", qtd: 45, osId: "os-4", status: "pendente", dias: 0 },
   { qr: "QR-INS-000110", produtoId: "prd-1", lote: "L-2409-G", qtd: 400, osId: "os-3", status: "entregue", veiculo: "Camionete JKL-4402", motorista: "Luís Ferreira", dias: 2 },
-  { qr: "QR-INS-000111", produtoId: "prd-5", lote: "L-2409-H", qtd: 60, osId: "os-6", status: "aplicado", veiculo: "Truck MBB-1029", motorista: "Pedro Rocha", aplicada: 48, dias: 5 },
+  { qr: "QR-INS-000111", produtoId: "prd-5", lote: "L-2409-H", qtd: 60, osId: "os-6", status: "aplicado", veiculo: "Truck MBB-1029", motorista: "Pedro Rocha", aplicada: 81, dias: 5 },
   { qr: "QR-INS-000112", produtoId: "prd-2", lote: "L-2409-J", qtd: 180, osId: "os-1", status: "em_transporte", veiculo: "Truck MBB-1029", motorista: "Pedro Rocha", dias: 1 },
   { qr: "QR-INS-000113", produtoId: "prd-4", lote: "L-2408-P", qtd: 36, osId: "os-5", status: "aplicado", veiculo: "Bitrem VWX-7781", motorista: "Luís Ferreira", aplicada: 36, dias: 8 },
   { qr: "QR-INS-000114", produtoId: "prd-7", lote: "L-2409-Q", qtd: 90, osId: "os-2", status: "entregue", veiculo: "Bitrem VWX-7781", motorista: "Pedro Rocha", dias: 1 },
+  { qr: "QR-INS-000115", produtoId: "prd-3", lote: "L-2408-R", qtd: 44, osId: "os-5", status: "aplicado", veiculo: "Bitrem VWX-7781", motorista: "Luís Ferreira", aplicada: 46, dias: 9 },
+  { qr: "QR-INS-000116", produtoId: "prd-5", lote: "L-2409-S", qtd: 50, osId: "os-1", status: "aplicado", veiculo: "Truck MBB-1029", motorista: "Pedro Rocha", aplicada: 55, dias: 3 },
+  { qr: "QR-INS-000117", produtoId: "prd-7", lote: "L-2409-T", qtd: 80, osId: "os-2", status: "aplicado", veiculo: "Bitrem VWX-7781", motorista: "Luís Ferreira", aplicada: 95, dias: 2 },
+  { qr: "QR-INS-000118", produtoId: "prd-6", lote: "L-2409-U", qtd: 430, osId: "os-4", status: "aplicado", veiculo: "Bitrem VWX-7781", motorista: "Pedro Rocha", aplicada: 420, dias: 3 },
 ];
+
+const VENCIMENTOS = ["2027-03-15", "2027-06-30", "2026-11-10", "2027-01-20", "2027-08-05", "2026-12-18"];
+const j = (i: number, k: number) => (((i * 37 + k * 11) % 17) - 8) * 0.00006;
 
 function iso(diasAtras: number, hora: number, min = 0) {
   const base = new Date("2026-09-22T09:00:00-03:00");
@@ -183,6 +215,8 @@ export function buildSeed(): AppData {
       fazendaId: os.fazendaId,
       talhaoId: os.talhaoId,
       status: r.status,
+      notaFiscal: String(45210 + i * 7),
+      vencimento: VENCIMENTOS[i % VENCIMENTOS.length]!,
       ...(r.veiculo ? { veiculo: r.veiculo } : {}),
       ...(r.motorista ? { motorista: r.motorista } : {}),
       ...(r.aplicada !== undefined ? { quantidadeAplicada: r.aplicada } : {}),
@@ -197,6 +231,8 @@ export function buildSeed(): AppData {
       responsavel: "Marcos Alves",
       perfil: "almoxarifado",
       local: "Almoxarifado Central",
+      lat: ALMOXARIFADO.lat + j(i, 1),
+      lng: ALMOXARIFADO.lng + j(i, 2),
       detalhe: `QR Code gerado para ${produto.nome} · lote ${r.lote} · ${r.qtd} ${produto.unidade}`,
     });
 
@@ -209,6 +245,8 @@ export function buildSeed(): AppData {
         responsavel: "Marcos Alves",
         perfil: "almoxarifado",
         local: "Almoxarifado Central",
+        lat: ALMOXARIFADO.lat + j(i, 3),
+        lng: ALMOXARIFADO.lng + j(i, 4),
         detalhe: `Saída liberada · veículo ${r.veiculo} · motorista ${r.motorista} · destino ${fazenda.nome}`,
       });
     }
@@ -222,6 +260,8 @@ export function buildSeed(): AppData {
         responsavel: r.motorista ?? "Pedro Rocha",
         perfil: "motorista",
         local: fazenda.nome,
+        lat: fazenda.sede.lat + j(i, 5),
+        lng: fazenda.sede.lng + j(i, 6),
         detalhe: `Chegada confirmada em ${fazenda.nome} · destino validado com ${os.codigo}`,
       });
     }
@@ -235,6 +275,8 @@ export function buildSeed(): AppData {
         responsavel: os.responsavel,
         perfil: "operador",
         local: `${fazenda.nome} · ${fazenda.talhoes.find((t) => t.id === os.talhaoId)?.nome}`,
+        lat: centroide(fazenda.talhoes.find((t) => t.id === os.talhaoId)!.poligono).lat + j(i, 7),
+        lng: centroide(fazenda.talhoes.find((t) => t.id === os.talhaoId)!.poligono).lng + j(i, 8),
         detalhe: `Aplicados ${r.aplicada} ${produto.unidade} de ${r.qtd} ${produto.unidade} retirados`,
       });
       if (r.aplicada !== undefined && r.aplicada !== r.qtd) {
@@ -283,5 +325,5 @@ export function buildSeed(): AppData {
     resolvida: false,
   });
 
-  return { fazendas, produtos, ordens, insumos, eventos, divergencias, usuarios };
+  return { config: { ...CONFIG_ESTOURO_PADRAO }, fazendas, produtos, ordens, insumos, eventos, divergencias, usuarios };
 }

@@ -8,12 +8,15 @@ export interface Talhao {
   id: string;
   nome: string;
   areaHa: number;
+  /** Polígono do talhão: lista de [lat, lng] */
+  poligono: [number, number][];
 }
 
 export interface Fazenda {
   id: string;
   nome: string;
   municipio: string;
+  sede: { lat: number; lng: number };
   talhoes: Talhao[];
 }
 
@@ -42,6 +45,10 @@ export interface Insumo {
   produtoId: string;
   lote: string;
   quantidade: number;
+  unidade?: string;
+  notaFiscal: string;
+  /** Data de vencimento (YYYY-MM-DD) */
+  vencimento: string;
   quantidadeAplicada?: number;
   osId: string;
   fazendaId: string;
@@ -60,6 +67,9 @@ export interface Evento {
   perfil: Perfil;
   local: string;
   detalhe: string;
+  lat: number;
+  lng: number;
+  localizacaoSimulada?: boolean;
 }
 
 export type DivergenciaTipo =
@@ -87,7 +97,15 @@ export interface Usuario {
   ativo: boolean;
 }
 
+export interface ConfigEstouro {
+  /** Até este % (absoluto) = dentro do padrão */
+  limiteAtencao: number;
+  /** Acima deste % (absoluto) = crítico */
+  limiteCritico: number;
+}
+
 export interface AppData {
+  config: ConfigEstouro;
   fazendas: Fazenda[];
   produtos: Produto[];
   ordens: OrdemServico[];
