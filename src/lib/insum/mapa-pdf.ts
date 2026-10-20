@@ -213,6 +213,6 @@ export async function baixarPdfFazenda(f: Fazenda, pinos: PinoPdf[], linhas: Lin
   linha(cols.map((c) => c.t), true);
   for (const l of linhas) linha([l.talhao, l.area, l.produto, l.recomendado, l.aplicado, l.estouro], false, l.hex);
 
-  doc.save(`mapa-${f.nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-")}.pdf`);
+  doc.save(`mapa-${f.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-")}.pdf`);
   return mapa.satelite;
 }
