@@ -11,22 +11,6 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 const githubPages = process.env.GITHUB_PAGES === "1";
 const base = githubPages ? process.env.VITE_BASE || "/" : "/";
 
-// Every non-parameterized route must be listed; each is prerendered to <route>/index.html.
-const STATIC_PAGES = [
-  "/",
-  "/ler-qr",
-  "/rastreabilidade",
-  "/ordens",
-  "/insumos",
-  "/gerar-qr",
-  "/fazendas",
-  "/divergencias",
-  "/relatorios",
-  "/usuarios",
-  "/configuracoes",
-];
-
-
 // GitHub Pages cannot run a server, so the CI build uses TanStack Start's SPA
 // mode: one static index.html shell, the client router takes over after load.
 export default defineConfig({
@@ -55,4 +39,3 @@ export default defineConfig({
       }
     : {}),
 });
-
