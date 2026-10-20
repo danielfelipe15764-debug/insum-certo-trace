@@ -189,12 +189,12 @@ export async function baixarPdfFazenda(f: Fazenda, pinos: PinoPdf[], linhas: Lin
 
   // Tabela
   const cols = [
-    { t: "Talhão", w: 30 },
-    { t: "Área (ha)", w: 18 },
-    { t: "Produto aplicado", w: 54 },
-    { t: "Recomendado", w: 26 },
-    { t: "Aplicado", w: 26 },
-    { t: "Estouro %", w: 32 },
+    { t: "Talhão", w: 24 },
+    { t: "Área (ha)", w: 16 },
+    { t: "Produto aplicado", w: 50 },
+    { t: "Recomendado", w: 24 },
+    { t: "Aplicado", w: 24 },
+    { t: "Estouro %", w: 48 },
   ];
   const linha = (vals: string[], header = false, hex?: string) => {
     if (y > 280) { doc.addPage(); y = 16; }
