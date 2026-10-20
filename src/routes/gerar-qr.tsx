@@ -5,12 +5,13 @@ import { Printer, Save, QrCode as QrIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useApp } from "@/lib/insum/store";
 import type { Produto } from "@/lib/insum/types";
+import { NovoQrForm } from "@/components/insum/NovoQrForm";
 
 export const Route = createFileRoute("/gerar-qr")({
   head: () => ({
     meta: [
       { title: "Gerar QR Code · Insumo Certo" },
-      { name: "description", content: "Gere e imprima QR Codes a partir do código de cada produto." },
+      { name: "description", content: "Crie QR Codes de insumo com NF, lote e vencimento e imprima etiquetas." },
       { property: "og:title", content: "Gerar QR Code · Insumo Certo" },
       { property: "og:description", content: "Gere e imprima QR Codes a partir do código de cada produto." },
       { property: "og:type", content: "website" },
@@ -106,6 +107,8 @@ function GerarQr() {
           QR Codes gerados a partir do código de cada produto. Cadastre o código quando estiver faltando e imprima as etiquetas.
         </p>
       </div>
+      <NovoQrForm />
+      <h2 className="text-lg font-extrabold text-foreground">QR Code por produto</h2>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {data.produtos.map((p) => <CartaoProduto key={p.id} p={p} />)}
       </div>
