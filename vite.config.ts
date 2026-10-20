@@ -35,7 +35,8 @@ export default defineConfig({
   ...(githubPages
     ? {
         vite: { base },
-        nitro: { preset: "github-pages" },
+        // GitHub Pages serves only static files: skip the server bundle entirely.
+        nitro: false,
       }
     : {}),
 });
