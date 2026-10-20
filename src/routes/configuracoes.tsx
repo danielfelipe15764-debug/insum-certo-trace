@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { RotateCcw, Bell, QrCode, ShieldCheck } from "lucide-react";
+import { RotateCcw, Bell, QrCode, ShieldCheck, Gauge } from "lucide-react";
+import { faixaHex } from "@/lib/insum/estouro";
 import { useApp } from "@/lib/insum/store";
 import { toast } from "sonner";
 
@@ -22,7 +23,9 @@ export const Route = createFileRoute("/configuracoes")({
 });
 
 function Configuracoes() {
-  const { resetarDados, data } = useApp();
+  const { resetarDados, data, setConfig } = useApp();
+  const [atencao, setAtencao] = useState(String(data.config.limiteAtencao));
+  const [critico, setCritico] = useState(String(data.config.limiteCritico));
   const [regras, setRegras] = useState({
     validarDestino: true,
     bloquearDuplicado: true,
@@ -69,6 +72,41 @@ function Configuracoes() {
 
       <section className="rounded-2xl border border-border bg-card p-4 shadow-card">
         <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
+          <Gauge className="h-4 w-4" /> Faixas de estouro de aplicação
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground">Estouro = (aplicado − recomendado) ÷ recomendado. As faixas valem para estouro e subaplicação.</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+          <label className="block">
+            <span className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: faixaHex.padrao }} /> Dentro do padrão até (%)
+            </span>
+            <input type="number" min={0} step="0.5" value={atencao} onChange={(e) => setAtencao(e.target.value)} className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm" />
+          </label>
+          <label className="block">
+            <span className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: faixaHex.critico }} /> Crítico acima de (%)
+            </span>
+            <input type="number" min={0} step="0.5" value={critico} onChange={(e) => setCritico(e.target.value)} className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm" />
+          </label>
+          <button
+            onClick={() => {
+              const a = Number(atencao), c = Number(critico);
+              if (!(a >= 0) || !(c > a)) { toast.error("O limite crítico deve ser maior que o limite do padrão."); return; }
+              setConfig({ limiteAtencao: a, limiteCritico: c });
+              toast.success("Faixas de estouro atualizadas");
+            }}
+            className="h-11 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground"
+          >
+            Salvar faixas
+          </button>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Entre {atencao || "—"}% e {critico || "—"}% o insumo fica em <b style={{ color: faixaHex.atencao }}>atenção</b>.
+        </p>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-card p-4 shadow-card">
+        <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
           <QrCode className="h-4 w-4" /> Padrão de QR Code
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -89,6 +127,8 @@ function Configuracoes() {
         <button
           onClick={() => {
             resetarDados();
+            setAtencao("5");
+            setCritico("15");
             toast.success("Dados de demonstração restaurados");
           }}
           className="mt-3 inline-flex items-center gap-2 rounded-xl bg-secondary px-4 py-3 text-sm font-semibold text-secondary-foreground"
