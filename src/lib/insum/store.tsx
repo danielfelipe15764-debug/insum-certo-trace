@@ -65,7 +65,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setData(JSON.parse(raw) as AppData);
+      if (raw) {
+        const parsed = JSON.parse(raw) as AppData;
+        if (parsed.config && parsed.fazendas?.[0]?.sede) setData(parsed);
+      }
     } catch {
       /* ignora */
     }
