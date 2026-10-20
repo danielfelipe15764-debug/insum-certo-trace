@@ -26,11 +26,6 @@ const STATIC_PAGES = [
   "/configuracoes",
 ];
 
-// The router runs with `base` set, so prerender requests must include the base
-// prefix or the router bounces them back to the base root ("max redirects").
-const prerenderPages = STATIC_PAGES.map((p) => ({
-  path: base === "/" ? p : `${base}${p === "/" ? "" : p.slice(1)}`,
-}));
 
 // GitHub Pages cannot run a server, so the CI build uses TanStack Start's SPA
 // mode: one static index.html shell, the client router takes over after load.
