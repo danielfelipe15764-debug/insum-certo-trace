@@ -76,8 +76,76 @@ function Dashboard() {
   const abertas = data.divergencias.filter((d) => !d.resolvida).length;
   const corBarra = (v: number) => faixaCor[faixaEstouro(v, cfg)];
 
+  const total = data.insumos.length || 1;
+  const etapas = [
+    { s: "pendente", k: "No almoxarifado", cor: "var(--muted-foreground)" },
+    { s: "em_transporte", k: "Em transporte", cor: "var(--info)" },
+    { s: "entregue", k: "Entregues na fazenda", cor: "var(--warning)" },
+    { s: "aplicado", k: "Aplicados no talhão", cor: "var(--success)" },
+  ];
+  const ultimos = [...data.eventos].sort((a, b) => b.dataHora.localeCompare(a.dataHora)).slice(0, 8);
+  const emRota = data.insumos.filter((i) => i.status === "em_transporte");
+  const nomeEtapa: Record<string, string> = { cadastro: "Cadastro", saida: "Retirada", chegada: "Chegada", aplicacao: "Aplicação" };
+
   return (
     <div className="space-y-5">
+      <Painel titulo="Rastreabilidade dos insumos">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {etapas.map((e) => {
+            const n = cont(e.s);
+            return (
+              <div key={e.s} className="rounded-xl border border-border p-3" style={{ borderLeft: `4px solid ${e.cor}` }}>
+                <p className="text-xs font-semibold text-muted-foreground">{e.k}</p>
+                <p className="mt-1 text-3xl font-extrabold text-foreground">{n}</p>
+                <div className="mt-2 h-1.5 rounded-full bg-muted">
+                  <div className="h-1.5 rounded-full" style={{ width: `${(n / total) * 100}%`, background: e.cor }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Painel>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Painel titulo="Últimas movimentações">
+          <ul className="divide-y divide-border text-sm">
+            {ultimos.map((ev) => {
+              const ins = data.insumos.find((i) => i.id === ev.insumoId);
+              return (
+                <li key={ev.id} className="flex items-center justify-between gap-2 py-2">
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-foreground">
+                      {nomeEtapa[ev.tipo]} · {ins ? produto(ins.produtoId)?.nome : ""}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">{ev.local} · {ev.responsavel}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    {ins && <Link to="/rastreabilidade" search={{ qr: ins.qrCode }} className="text-xs font-semibold text-primary hover:underline">{ins.qrCode}</Link>}
+                    <p className="text-xs text-muted-foreground">{new Date(ev.dataHora).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </Painel>
+        <Painel titulo={`Em transporte agora (${emRota.length})`}>
+          <ul className="divide-y divide-border text-sm">
+            {emRota.map((i) => (
+              <li key={i.id} className="flex items-center justify-between gap-2 py-2">
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-foreground">{produto(i.produtoId)?.nome}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    → {fazenda(i.fazendaId)?.nome} · {talhaoNome(i.fazendaId, i.talhaoId)}{i.motorista ? ` · ${i.motorista}` : ""}
+                  </p>
+                </div>
+                <Link to="/rastreabilidade" search={{ qr: i.qrCode }} className="shrink-0 text-xs font-semibold text-primary hover:underline">Rastrear</Link>
+              </li>
+            ))}
+            {emRota.length === 0 && <li className="py-6 text-center text-muted-foreground">Nenhum insumo em transporte.</li>}
+          </ul>
+        </Painel>
+      </div>
+
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-extrabold text-foreground">Painel gerencial</h1>
