@@ -22,7 +22,7 @@ describe("calcularCiclo", () => {
     expect(r.consumoRealL).toBe(250);
     expect(r.classe).toBe("dentro");
   });
-  it("sem residual estável fica pendente", () => expect(calcularCiclo({ ...base, volumeResidualL: undefined }).classe).toBe("pendente"));
+  it("sem residual estável fica pendente", () => expect(calcularCiclo((({ volumeResidualL: _, ...rest }) => rest)(base)).classe).toBe("pendente"));
   it("residual maior que o abastecido é inconsistente", () => expect(calcularCiclo({ ...base, volumeResidualL: 400 }).classe).toBe("inconsistente"));
   it("respeita tolerância por operação", () => expect(calcularCiclo(base, { Herbicida: 25 }).classe).toBe("dentro"));
 });
