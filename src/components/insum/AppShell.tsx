@@ -15,6 +15,8 @@ import {
   Menu,
   X,
   Leaf,
+  Droplets,
+  Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/lib/insum/store";
@@ -27,6 +29,8 @@ const nav = [
   { to: "/insumos", label: "Insumos", icon: Package },
   { to: "/rastreabilidade", label: "Rastreabilidade", icon: RouteIcon },
   { to: "/fazendas", label: "Fazendas", icon: Tractor },
+  { to: "/monitoramento", label: "Monitoramento de Aplicação", icon: Droplets },
+  { to: "/eficiencia", label: "Ranking de Eficiência", icon: Trophy },
   { to: "/divergencias", label: "Divergências", icon: AlertTriangle },
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
   { to: "/usuarios", label: "Usuários", icon: Users },
