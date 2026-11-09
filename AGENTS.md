@@ -14,3 +14,4 @@
 - GitHub Pages CI build (.github/workflows/deploy-pages.yml) is env-gated: GITHUB_PAGES=1 + VITE_BASE=/<repo>/ switches vite.config.ts to TanStack SPA mode (nitro disabled). Never set GITHUB_PAGES in Lovable builds — the sandbox wrapper pins cloudflare-module.
 - Overage (estouro) is computed only by calcularEstouro/faixaEstouro in src/lib/insum/estouro.ts so every screen agrees.
 - Farm PDF maps are drawn on a canvas from tiles (neutral background fallback) instead of screenshotting the DOM, so download never fails on CORS.
+- Consumption monitoring (calda) logic lives in src/lib/insum/calda.ts (pure, tested); demo cycles in calda-seed.ts are static, not in the store, so the sensor/Solinftec feed can replace them later.
