@@ -136,7 +136,7 @@ function Monitoramento() {
 
         <TabsContent value="ciclos">
           <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
-            <table className="w-full min-w-[1400px] text-sm">
+            <table className="w-full min-w-[1400px] whitespace-nowrap text-sm">
               <thead className="bg-muted/60 text-left text-xs text-muted-foreground">
                 <tr>{["Ciclo", "Data", "Máquina", "Operador", "Fazenda / Talhão", "OS", "Operação / Produto", "Inicial", "+Abast.", "Residual", "Consumido", "ha", "Vazão plan.", "Vazão real", "Desvio", "Sensor / Status"].map((h) => <th key={h} className="px-3 py-2 font-semibold">{h}</th>)}</tr>
               </thead>
