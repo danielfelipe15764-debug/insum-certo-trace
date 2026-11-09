@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as DivergenciasRouteImport } from './routes/divergencias'
+import { Route as EficienciaRouteImport } from './routes/eficiencia'
 import { Route as FazendasRouteImport } from './routes/fazendas'
 import { Route as GerarQrRouteImport } from './routes/gerar-qr'
 import { Route as InsumosRouteImport } from './routes/insumos'
 import { Route as LerQrRouteImport } from './routes/ler-qr'
+import { Route as MonitoramentoRouteImport } from './routes/monitoramento'
 import { Route as OrdensRouteImport } from './routes/ordens'
 import { Route as RastreabilidadeRouteImport } from './routes/rastreabilidade'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
@@ -36,6 +38,11 @@ const DivergenciasRoute = DivergenciasRouteImport.update({
   path: '/divergencias',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EficienciaRoute = EficienciaRouteImport.update({
+  id: '/eficiencia',
+  path: '/eficiencia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FazendasRoute = FazendasRouteImport.update({
   id: '/fazendas',
   path: '/fazendas',
@@ -54,6 +61,11 @@ const InsumosRoute = InsumosRouteImport.update({
 const LerQrRoute = LerQrRouteImport.update({
   id: '/ler-qr',
   path: '/ler-qr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonitoramentoRoute = MonitoramentoRouteImport.update({
+  id: '/monitoramento',
+  path: '/monitoramento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrdensRoute = OrdensRouteImport.update({
@@ -81,10 +93,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/divergencias': typeof DivergenciasRoute
+  '/eficiencia': typeof EficienciaRoute
   '/fazendas': typeof FazendasRoute
   '/gerar-qr': typeof GerarQrRoute
   '/insumos': typeof InsumosRoute
   '/ler-qr': typeof LerQrRoute
+  '/monitoramento': typeof MonitoramentoRoute
   '/ordens': typeof OrdensRoute
   '/rastreabilidade': typeof RastreabilidadeRoute
   '/relatorios': typeof RelatoriosRoute
@@ -94,10 +108,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/divergencias': typeof DivergenciasRoute
+  '/eficiencia': typeof EficienciaRoute
   '/fazendas': typeof FazendasRoute
   '/gerar-qr': typeof GerarQrRoute
   '/insumos': typeof InsumosRoute
   '/ler-qr': typeof LerQrRoute
+  '/monitoramento': typeof MonitoramentoRoute
   '/ordens': typeof OrdensRoute
   '/rastreabilidade': typeof RastreabilidadeRoute
   '/relatorios': typeof RelatoriosRoute
@@ -108,10 +124,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/divergencias': typeof DivergenciasRoute
+  '/eficiencia': typeof EficienciaRoute
   '/fazendas': typeof FazendasRoute
   '/gerar-qr': typeof GerarQrRoute
   '/insumos': typeof InsumosRoute
   '/ler-qr': typeof LerQrRoute
+  '/monitoramento': typeof MonitoramentoRoute
   '/ordens': typeof OrdensRoute
   '/rastreabilidade': typeof RastreabilidadeRoute
   '/relatorios': typeof RelatoriosRoute
@@ -123,10 +141,12 @@ export interface FileRouteTypes {
     | '/'
     | '/configuracoes'
     | '/divergencias'
+    | '/eficiencia'
     | '/fazendas'
     | '/gerar-qr'
     | '/insumos'
     | '/ler-qr'
+    | '/monitoramento'
     | '/ordens'
     | '/rastreabilidade'
     | '/relatorios'
@@ -136,10 +156,12 @@ export interface FileRouteTypes {
     | '/'
     | '/configuracoes'
     | '/divergencias'
+    | '/eficiencia'
     | '/fazendas'
     | '/gerar-qr'
     | '/insumos'
     | '/ler-qr'
+    | '/monitoramento'
     | '/ordens'
     | '/rastreabilidade'
     | '/relatorios'
@@ -149,10 +171,12 @@ export interface FileRouteTypes {
     | '/'
     | '/configuracoes'
     | '/divergencias'
+    | '/eficiencia'
     | '/fazendas'
     | '/gerar-qr'
     | '/insumos'
     | '/ler-qr'
+    | '/monitoramento'
     | '/ordens'
     | '/rastreabilidade'
     | '/relatorios'
@@ -163,10 +187,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   DivergenciasRoute: typeof DivergenciasRoute
+  EficienciaRoute: typeof EficienciaRoute
   FazendasRoute: typeof FazendasRoute
   GerarQrRoute: typeof GerarQrRoute
   InsumosRoute: typeof InsumosRoute
   LerQrRoute: typeof LerQrRoute
+  MonitoramentoRoute: typeof MonitoramentoRoute
   OrdensRoute: typeof OrdensRoute
   RastreabilidadeRoute: typeof RastreabilidadeRoute
   RelatoriosRoute: typeof RelatoriosRoute
@@ -196,6 +222,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DivergenciasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/eficiencia': {
+      id: '/eficiencia'
+      path: '/eficiencia'
+      fullPath: '/eficiencia'
+      preLoaderRoute: typeof EficienciaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/fazendas': {
       id: '/fazendas'
       path: '/fazendas'
@@ -222,6 +255,13 @@ declare module '@tanstack/react-router' {
       path: '/ler-qr'
       fullPath: '/ler-qr'
       preLoaderRoute: typeof LerQrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/monitoramento': {
+      id: '/monitoramento'
+      path: '/monitoramento'
+      fullPath: '/monitoramento'
+      preLoaderRoute: typeof MonitoramentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ordens': {
@@ -259,10 +299,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   DivergenciasRoute: DivergenciasRoute,
+  EficienciaRoute: EficienciaRoute,
   FazendasRoute: FazendasRoute,
   GerarQrRoute: GerarQrRoute,
   InsumosRoute: InsumosRoute,
   LerQrRoute: LerQrRoute,
+  MonitoramentoRoute: MonitoramentoRoute,
   OrdensRoute: OrdensRoute,
   RastreabilidadeRoute: RastreabilidadeRoute,
   RelatoriosRoute: RelatoriosRoute,
